@@ -1755,6 +1755,134 @@ footer .big .serif-accent{color:var(--accent)}
   .table-prompt{padding:26px 20px 22px}
   .howrow .n{font-size:24px}
 }
+
+/* ============================================================================
+   COMPETITION v2 — flat 2D dice + coin (the dice builder)
+   Flat die faces (square, rounded) with a quick tumble animation on roll.
+   Cobalt-framed, on cream. Concept die shows the pair's hue + both pole names;
+   challenge die shows the type word; coin shows which pole leads.
+   ========================================================================== */
+.cv2-setup{ display:flex; flex-direction:column; gap:22px; }
+
+/* the die bar: three slots in a row, connected downward into the table */
+.cv2-diebar{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:16px; position:relative; }
+@media(max-width:760px){ .cv2-diebar{ grid-template-columns:1fr; } }
+.cv2-slot{ border:1px solid var(--line); border-radius:16px; padding:16px 14px; background:var(--white); display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center; }
+.cv2-slot .cv2-order{ font-size:11px; letter-spacing:.1em; text-transform:uppercase; font-weight:800; color:var(--cobalt); }
+.cv2-slot .cv2-ask{ font-size:12.5px; color:var(--muted); line-height:1.35; min-height:2.6em; }
+
+/* ===== 3D dice cubes ===== */
+.cv2-cube-stage{ width:104px; height:104px; perspective:520px; display:flex; align-items:center; justify-content:center; position:relative; }
+/* soft contact shadow so the cube reads as sitting in space, not floating flat */
+.cv2-cube-stage::after{ content:""; position:absolute; left:50%; bottom:-2px; transform:translateX(-50%);
+  width:66px; height:11px; border-radius:50%; pointer-events:none;
+  background:radial-gradient(ellipse at center, rgba(31,30,27,.26) 0%, rgba(31,30,27,0) 72%); }
+.cv2-cube{ width:84px; height:84px; position:relative; transform-style:preserve-3d;
+  transform:rotateX(-55deg) rotateY(-22deg); transition:transform 1s cubic-bezier(.22,.9,.28,1); }
+/* NOTE: never put opacity/filter on .cv2-cube — any value <1 forces preserve-3d to
+   flatten and the cube collapses to a single face. Dim the FACES instead. */
+.cv2-cube.cv2-empty-cube .cface{ border-color:#B9B2A0; }
+.cface{ position:absolute; width:84px; height:84px; border:2px solid var(--ink); border-radius:6px;
+  display:flex; align-items:center; justify-content:center; backface-visibility:hidden;
+  box-sizing:border-box; background:var(--white); }
+/* Per-face shading — makes the cube read as a solid object. Inset shadows tint the
+   face colour but paint UNDER the content, so words keep their true colour.
+   The TOP face is the lit/read face now (a roll lands face-up), so it's unshaded. */
+.cface-top   { }
+.cface-front { box-shadow:inset 0 0 0 200px rgba(31,30,27,.20); }
+.cface-back  { box-shadow:inset 0 0 0 200px rgba(31,30,27,.28); }
+.cface-right { box-shadow:inset 0 0 0 200px rgba(31,30,27,.30); }
+.cface-left  { box-shadow:inset 0 0 0 200px rgba(31,30,27,.30); }
+.cface-bottom{ box-shadow:inset 0 0 0 200px rgba(31,30,27,.42); }
+/* box: translate each face out by half the cube size (42px) */
+.cface-front { transform:rotateY(0deg)   translateZ(42px); }
+.cface-back  { transform:rotateY(180deg) translateZ(42px); }
+.cface-right { transform:rotateY(90deg)  translateZ(42px); }
+.cface-left  { transform:rotateY(-90deg) translateZ(42px); }
+.cface-top   { transform:rotateX(90deg)  translateZ(42px); }
+.cface-bottom{ transform:rotateX(-90deg) translateZ(42px); }
+/* concept cube: faces are solid pair-hues (set inline in JS). placeholder empty look: */
+.cv2-cube-concept .cface{ background:#E9E4D6; }
+/* inspiration cube: WORD faces (cobalt on cream) */
+.cv2-cube-inspire .cface{ color:var(--cobalt); }
+.cv2-cube-inspire .cface-word{ font-weight:800; font-size:13px; letter-spacing:.01em; text-align:center; line-height:1.05; padding:0 4px; }
+/* the little landing pop */
+.cv2-cube.cv2-pop{ animation:cv2pop .4s ease; }
+@keyframes cv2pop{ 0%{ } 40%{ } 100%{ } } /* pop handled via transform on wrapper below */
+.cv2-cube-stage.cv2-pop{ animation:cv2stagepop .42s cubic-bezier(.2,1.5,.4,1); }
+@keyframes cv2stagepop{ 0%{transform:scale(.9);} 45%{transform:scale(1.1);} 100%{transform:scale(1);} }
+.cv2-readout{ font-size:13.5px; font-weight:800; color:var(--ink); min-height:1.2em; }
+
+/* coin (2D flip between the two pole colors) */
+.cv2-coin{ width:88px; height:88px; border-radius:50%; border:2px solid var(--ink); background:var(--white);
+  display:flex; align-items:center; justify-content:center; text-align:center; padding:8px;
+  box-shadow:0 3px 0 rgba(31,30,27,.14); position:relative; overflow:hidden; }
+.cv2-coin.flipping{ animation:cv2flip .6s ease; }
+@keyframes cv2flip{
+  0%{ transform:rotateY(0); } 50%{ transform:rotateY(540deg) scale(1.06); } 100%{ transform:rotateY(1080deg); }
+}
+.cv2-coin .cv2-lead-name{ font-weight:800; font-size:13px; z-index:1; line-height:1.15; }
+.cv2-coin.cv2-empty{ border-style:dashed; border-color:var(--line); }
+.cv2-coin.cv2-empty .cv2-q{ font-size:24px; font-weight:800; color:#C9C1AE; }
+
+/* controls under each slot */
+.cv2-ctrl{ display:flex; flex-direction:column; gap:8px; width:100%; }
+.cv2-ctrl .cv2-roll{ width:100%; }
+.cv2-override{ display:flex; flex-direction:column; gap:6px; width:100%; }
+.cv2-override select, .cv2-override input{ width:100%; padding:7px 9px; border:1px solid var(--line); border-radius:10px; font:inherit; font-size:13px; background:var(--white); }
+
+/* ===== the season-brief table ===== */
+.cv2-tablewrap{ overflow-x:auto; }
+.cv2-tbl{ width:100%; border-collapse:separate; border-spacing:0; border:1.5px solid var(--cobalt); border-radius:14px; overflow:hidden; background:var(--white); }
+.cv2-tbl td{ border-bottom:1px solid var(--line); border-right:1px solid var(--line); padding:10px 12px; vertical-align:top; text-align:left; }
+.cv2-tbl tr:last-child td{ border-bottom:none; }
+.cv2-tbl td:last-child{ border-right:none; }
+.cv2-rowlbl{ width:130px; background:#F2F5FB; font-size:11.5px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--cobalt); white-space:nowrap; }
+.cv2-rowlbl .cv2-opt{ display:block; font-size:10px; font-weight:600; letter-spacing:.04em; color:var(--muted); text-transform:none; margin-top:2px; }
+.cv2-season-cell{ background:#F7F9FD; }
+.cv2-season-tags{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:8px; min-height:30px; }
+.cv2-tag-slot{ display:inline-flex; align-items:center; gap:5px; }
+.cv2-tag-ph{ display:inline-block; padding:4px 12px; border:1px dashed var(--line); border-radius:999px; font-size:12px; color:#C9C1AE; font-style:italic; letter-spacing:.02em; }
+.cv2-tag-inspire{ display:inline-block; padding:4px 12px; border-radius:999px; font-size:12px; font-weight:800; background:var(--cobalt); color:var(--cream); }
+.cv2-tag-slot .cv2-chip{ display:inline-block; padding:4px 11px; border-radius:999px; font-size:12px; font-weight:800; }
+.cv2-tag-arrow{ color:var(--muted); font-weight:700; margin:0 1px; }
+.cv2-season-cell textarea, .cv2-brief-cell textarea, .cv2-notes-cell textarea{ width:100%; border:1px solid transparent; border-radius:8px; padding:6px 8px; font:inherit; font-size:13px; background:transparent; resize:vertical; color:var(--ink); transition:border-color .15s, background .15s; }
+.cv2-season-cell textarea{ font-size:14px; font-weight:600; }
+.cv2-season-cell textarea:hover, .cv2-brief-cell textarea:hover, .cv2-notes-cell textarea:hover{ border-color:var(--line); }
+.cv2-season-cell textarea:focus, .cv2-brief-cell textarea:focus, .cv2-notes-cell textarea:focus{ border-color:var(--cobalt); background:var(--white); outline:none; }
+.cv2-epnum{ text-align:center; font-weight:800; color:var(--cobalt); font-size:14px; background:#FAFBFD; }
+.cv2-epnum.cv2-fin{ font-size:12px; }
+.cv2-concept-cell{ text-align:center; }
+.cv2-cell-empty{ color:#C9C1AE; font-size:14px; }
+.cv2-tbl .cv2-chip{ display:inline-block; padding:3px 10px; border-radius:999px; font-size:12px; font-weight:800; margin:2px; }
+.cv2-notes-cell textarea{ font-size:12.5px; color:var(--muted); }
+@media(max-width:640px){
+  .cv2-tbl, .cv2-tbl tbody, .cv2-tbl tr, .cv2-tbl td{ display:block; width:auto; }
+  .cv2-tbl td{ border-right:none; }
+  .cv2-rowlbl{ width:auto; background:#F2F5FB; }
+  .cv2-epnum{ text-align:left; }
+}
+
+/* v2 board: the three episode cards */
+.cv2-board-old{}
+
+/* v2 board: the three episode cards */
+.cv2-board-eps{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:16px; margin-top:8px; }
+@media(max-width:760px){ .cv2-board-eps{ grid-template-columns:1fr; } }
+.cv2-bcard{ border:2px solid var(--cobalt); border-radius:16px; padding:18px; background:var(--white); display:flex; flex-direction:column; gap:10px; text-align:left; cursor:pointer; transition:transform .15s ease, box-shadow .15s ease; }
+.cv2-bcard:hover{ transform:translateY(-3px); box-shadow:0 8px 22px rgba(40,60,120,.14); }
+.cv2-bcard.done{ border-color:var(--line); background:#FbFAF6; cursor:default; }
+.cv2-bcard.done:hover{ transform:none; box-shadow:none; }
+.cv2-bcard.locked{ border-style:dashed; border-color:var(--line); opacity:.6; cursor:default; }
+.cv2-bcard.locked:hover{ transform:none; box-shadow:none; }
+.cv2-bcard .cv2-bno{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; font-weight:800; color:var(--cobalt); }
+.cv2-bcard.done .cv2-bno, .cv2-bcard.locked .cv2-bno{ color:var(--muted); }
+.cv2-bcard .cv2-brole{ font-size:12px; color:var(--muted); }
+.cv2-bcard .cv2-bconcept{ margin:2px 0; }
+.cv2-bcard .cv2-bbrief{ font-size:13.5px; color:var(--ink); line-height:1.45; }
+.cv2-bcard .cv2-bstate{ margin-top:auto; font-size:12px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; }
+.cv2-bcard .cv2-bchip{ display:inline-block; padding:3px 10px; border-radius:999px; font-size:12px; font-weight:800; margin-right:5px; }
+.cv2-btype{ display:inline-block; margin-top:6px; padding:3px 10px; border:1px solid var(--cobalt); border-radius:999px; font-size:12px; font-weight:800; color:var(--cobalt); }
 </style>
 </head>
 <body>
@@ -1764,7 +1892,7 @@ footer .big .serif-accent{color:var(--accent)}
     <button class="bn bn-home" data-nav="home" onclick="show('home')">Cooking Show</button>
     <button class="bn bn-classroom" data-nav="classroom" onclick="goClassroom()">Classroom</button>
     <button class="bn bn-kitchen" data-nav="title" onclick="show('title')">Kitchen</button>
-    <button class="bn bn-competition" data-nav="competition" onclick="goCompSetup()">Competition</button>
+    <button class="bn bn-competition" data-nav="competition" onclick="goCompetition()">Competition</button>
     <button class="bn bn-community" data-nav="community" onclick="goCommunity()">Community</button>
     <button class="bn bn-blog" data-nav="blog" onclick="goBlog()">Blog</button>
     <button class="bn bn-about" data-nav="about" onclick="goAbout()">About</button>
@@ -1788,22 +1916,23 @@ footer .big .serif-accent{color:var(--accent)}
     <p class="lede" style="margin:0 auto;text-align:center;max-width:600px"><span class="pn pn-kitchen">CS Kitchen</span> is the link between <span class="pn pn-classroom">CS Classroom</span> and <span class="pn pn-competition">CS Competition</span> because it moves you from practice to performance.</p>
     <div class="path-grid">
       <div class="path-card">
-        <span class="kicker" style="color:var(--red)">Path one · Enter from the Classroom</span>
-        <h3>Take a unit test in any order</h3>
-        <p>After practicing in a <span class="pn pn-classroom">CS Classroom</span> unit, “test” your growth by completing a challenge in <span class="pn pn-kitchen">CS Kitchen</span>.</p>
+        <span class="kicker" style="color:var(--red)">Play along</span>
+        <h3>Cook the debut season</h3>
+        <p>Follow the debut season's briefs and deal concepts from the deck. Play it two ways: <b>start a season</b> and cook all five challenges plus the finale in order, or <b>enter through the Classroom</b> and drop in for a single unit test — any unit, any order, at your own pace, after you've practiced it.</p>
         <div class="path-actions">
-          <button class="btn primary" style="background:var(--mustard);border-color:var(--mustard);color:var(--ink)" onclick="goClassroom()">Start a Unit <span class="arr">→</span></button>
-        </div>
-      </div>
-      <div class="path-card">
-        <span class="kicker" style="color:var(--red)">Path two · Exit to the Competition</span>
-        <h3>Play the season sequentially</h3>
-        <p>Complete all five challenges, plus a finale, in order. You'll deal concepts from the deck, follow the briefs for every round, and cook against the clock.</p>
-        <div class="path-actions">
-          <button class="btn primary" onclick="startClassicSetup()">Start the season <span class="arr">→</span></button>
+          <button class="btn primary" onclick="startClassicSetup()">Start a season <span class="arr">→</span></button>
+          <button class="btn ghost" onclick="goClassroom()">Enter through the Classroom <span class="arr">→</span></button>
           <button class="btn ghost" id="resume-btn" style="display:none" onclick="resumeSeason()">Resume season</button>
           <button class="btn ghost" onclick="importBackupPrompt()">Resume from a file</button>
           <input type="file" id="backup-file-input" accept=".json,application/json" style="display:none" onchange="importBackupFile(this.files[0]); this.value='';">
+        </div>
+      </div>
+      <div class="path-card">
+        <span class="kicker" style="color:var(--red)">Build your own</span>
+        <h3>Make your own season</h3>
+        <p>[Ms. Maz: build-your-own Kitchen copy — the DIY 6-unit season. Rename the twelve concepts to your own dozen and write your own six unit briefs, then cook it solo or bring a study group along.]</p>
+        <div class="path-actions">
+          <button class="btn primary" onclick="goKitchenBuild()">Build your own season <span class="arr">→</span></button>
         </div>
       </div>
     </div>
@@ -1817,6 +1946,224 @@ footer .big .serif-accent{color:var(--accent)}
   </div>
 
 
+</section>
+
+<!-- ============ KITCHEN DIY BUILDER ============ -->
+<section class="screen" id="screen-kitchenbuild">
+  <div class="topbar">
+    <span class="crumb">Cooking Show Kitchen · Build your own</span>
+    <button class="btn ghost small" onclick="show('title')">&larr; Back</button>
+  </div>
+  <div class="panel">
+    <span class="kicker">Make it your own</span>
+    <h2 class="title">Build your own <span class="serif-accent">season</span></h2>
+    <p class="lede">[Ms. Maz: intro for the Kitchen DIY builder — a 6-unit season of your own making. Rename the deck, write the unit briefs, then cook it at your own pace, solo or with a study group.]</p>
+
+    <label class="field-label" for="kb-name">Season name</label>
+    <input type="text" id="kb-name" class="ti" placeholder="e.g. My Comfort-Food Semester">
+
+    <div class="field-label">The story of the season <span class="opt-tag">optional</span></div>
+    <p class="field-hint">[Ms. Maz: one line on the optional story field — a thread that runs through all six units, if you want one.]</p>
+    <input type="text" id="kb-story" class="ti" placeholder="e.g. Dishes my grandmother taught me">
+    <input type="text" id="kb-story-line" class="ti" style="margin-top:8px" placeholder="One line on the thread — e.g. every unit revisits a recipe from home">
+
+    <div class="field-label">Your twelve concepts</div>
+    <p class="field-hint">Keep the classic twelve or rename them to your own dozen. Each keeps its card color.</p>
+    <div class="comp-toolbar">
+      <button class="btn ghost small" onclick="kbFillClassic()">Start from the classic twelve</button>
+      <button class="btn ghost small" onclick="kbClear()">Clear all</button>
+    </div>
+    <div class="comp-concepts" id="kb-concepts"></div>
+
+    <div class="field-label">Your six units</div>
+    <p class="field-hint">Give each unit its own theme and an optional one-liner brief. The unit mechanics stay the same, so the season still builds as it goes.</p>
+    <div class="comp-challenges" id="kb-units"></div>
+
+    <div class="setup-actions" style="margin-top:22px">
+      <button class="btn primary" onclick="kitchenBuildContinue()">Choose your setup <span class="arr">→</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COMPETITION LANDING (two-mode) ============ -->
+<section class="screen" id="screen-complanding">
+  <div class="panel">
+    <h2 class="title" style="text-align:center">Two ways to <span class="serif-accent comp-accent">compete</span></h2>
+    <p class="lede" style="margin:0 auto;text-align:center;max-width:620px">[Ms. Maz: intro line for the Competition landing — the short, action-packed, cook-with-others event. The concepts you know from the <span class="pn pn-kitchen">Kitchen</span> become a season you write and cook together over three episodes.]</p>
+    <div class="path-grid">
+      <div class="path-card">
+        <span class="kicker" style="color:var(--cobalt)">Play along</span>
+        <h3>Run the pre-set season</h3>
+        <p>[Ms. Maz: play-along Competition copy — a ready-made 3-episode season you can run with friends, family, or the <span class="pn pn-community">Community</span>. Just gather your cooks and go.]</p>
+        <div class="path-actions">
+          <button class="btn ghost" disabled style="opacity:.55;cursor:default">Coming soon</button>
+          <p class="field-hint" style="margin-top:6px">The pre-set season is on its way.</p>
+        </div>
+      </div>
+      <div class="path-card">
+        <span class="kicker" style="color:var(--cobalt)">Build your own</span>
+        <h3>Write your own season</h3>
+        <p>[Ms. Maz: build-your-own Competition copy — roll for your concepts and challenge, flip for which pole leads, or override any of it and set your own. Then cook a 3-episode arc with others.]</p>
+        <div class="path-actions">
+          <button class="btn primary" style="background:var(--cobalt);border-color:var(--cobalt)" onclick="goCompV2()">Build your own season <span class="arr">→</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COMPETITION v2 DICE BUILDER ============ -->
+<section class="screen" id="screen-compv2">
+  <div class="topbar">
+    <span class="crumb">Cooking Show Competition · Build your own</span>
+    <button class="btn ghost small" onclick="goCompetition()">&larr; Back</button>
+  </div>
+  <div class="panel">
+    <span class="kicker">Roll your season</span>
+    <h2 class="title">Write your own <span class="serif-accent comp-accent">season</span></h2>
+    <p class="lede">[Ms. Maz: intro for the dice builder — roll the two dice and flip the coin to set your season's tension, its challenge, and which side leads. Or override any of them and set your own. Then cook a three-episode arc with others.]</p>
+
+    <div class="cv2-setup">
+      <div>
+        <label class="field-label" for="cv2-name">Season name</label>
+        <input type="text" id="cv2-name" class="ti" placeholder="e.g. The Sunday Table Showdown">
+      </div>
+
+      <div>
+        <div class="field-label">Set your season <span class="opt-tag">roll each, or choose your own</span></div>
+        <p class="field-hint">Each roll drops into the season brief below. Roll all three to build your season — then make every line your own.</p>
+        <div class="cv2-diebar">
+          <!-- 1 · INSPIRATION DIE (3D icon cube) -->
+          <div class="cv2-slot">
+            <span class="cv2-order">1 · Inspiration</span>
+            <div class="cv2-cube-stage">
+              <div class="cv2-cube cv2-cube-inspire" id="cv2-inspire-cube">
+                <div class="cface cface-front"></div>
+                <div class="cface cface-back"></div>
+                <div class="cface cface-right"></div>
+                <div class="cface cface-left"></div>
+                <div class="cface cface-top"></div>
+                <div class="cface cface-bottom"></div>
+              </div>
+            </div>
+            <span class="cv2-readout" id="cv2-inspire-readout">—</span>
+            <span class="cv2-ask">Who or what inspires the season?</span>
+            <div class="cv2-ctrl">
+              <button class="btn primary cv2-roll" style="background:var(--cobalt);border-color:var(--cobalt)" onclick="cv2DoRollInspire()">Roll</button>
+              <div class="cv2-override">
+                <select id="cv2-inspire-select" onchange="cv2SetInspire(this.value)">
+                  <option value="">— or choose —</option>
+                </select>
+                <input type="text" id="cv2-inspire-custom" maxlength="28" placeholder="…or write your own" oninput="cv2SetCustomInspire(this.value)">
+              </div>
+            </div>
+          </div>
+          <!-- 2 · CONCEPT DIE (3D color cube) -->
+          <div class="cv2-slot">
+            <span class="cv2-order">2 · Concept</span>
+            <div class="cv2-cube-stage">
+              <div class="cv2-cube cv2-cube-concept" id="cv2-concept-cube">
+                <div class="cface cface-front"></div>
+                <div class="cface cface-back"></div>
+                <div class="cface cface-right"></div>
+                <div class="cface cface-left"></div>
+                <div class="cface cface-top"></div>
+                <div class="cface cface-bottom"></div>
+              </div>
+            </div>
+            <span class="cv2-readout" id="cv2-concept-readout">—</span>
+            <span class="cv2-ask">What ideas spin each challenge?</span>
+            <div class="cv2-ctrl">
+              <button class="btn primary cv2-roll" style="background:var(--cobalt);border-color:var(--cobalt)" onclick="cv2DoRollConcept()">Roll</button>
+              <div class="cv2-override">
+                <select id="cv2-concept-select" onchange="cv2SetConcept(this.value)">
+                  <option value="">— or choose —</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <!-- 3 · COIN -->
+          <div class="cv2-slot">
+            <span class="cv2-order">3 · Sequence</span>
+            <div class="cv2-coin cv2-empty" id="cv2-coin"><span class="cv2-q">?</span></div>
+            <span class="cv2-readout" id="cv2-coin-readout">—</span>
+            <span class="cv2-ask">How are they sequenced?</span>
+            <div class="cv2-ctrl">
+              <button class="btn primary cv2-roll" style="background:var(--cobalt);border-color:var(--cobalt)" onclick="cv2DoFlip()">Flip</button>
+              <div class="cv2-override">
+                <select id="cv2-coin-select" onchange="cv2SetLead(this.value)">
+                  <option value="">— or choose —</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- THE SEASON BRIEF TABLE — scaffolding visible upfront, cells fill as you roll -->
+      <div>
+        <div class="field-label">The season brief</div>
+        <p class="field-hint">The dice fill this in. Every line is a suggestion — tap any cell to make it your own.</p>
+        <div class="cv2-tablewrap">
+          <table class="cv2-tbl">
+            <tr>
+              <td class="cv2-rowlbl">Season Brief</td>
+              <td class="cv2-season-cell" colspan="3">
+                <div class="cv2-season-tags">
+                  <span class="cv2-tag-slot" id="cv2-tag-inspire"><span class="cv2-tag-ph">inspiration</span></span>
+                  <span class="cv2-tag-slot" id="cv2-tag-concept"><span class="cv2-tag-ph">concepts</span></span>
+                </div>
+                <textarea id="cv2-season-brief" rows="2" placeholder="Roll all three to write your season premise here — then make it your own." oninput="CV2.seasonBrief=this.value; CV2.seasonBriefTouched=true;"></textarea>
+              </td>
+            </tr>
+            <tr>
+              <td class="cv2-rowlbl">Episode</td>
+              <td class="cv2-epnum">1</td>
+              <td class="cv2-epnum">2</td>
+              <td class="cv2-epnum cv2-fin">3 · Finale</td>
+            </tr>
+            <tr>
+              <td class="cv2-rowlbl">Concept</td>
+              <td class="cv2-concept-cell" id="cv2-cell-concept-0"><span class="cv2-cell-empty">—</span></td>
+              <td class="cv2-concept-cell" id="cv2-cell-concept-1"><span class="cv2-cell-empty">—</span></td>
+              <td class="cv2-concept-cell" id="cv2-cell-concept-2"><span class="cv2-cell-empty">—</span></td>
+            </tr>
+            <tr>
+              <td class="cv2-rowlbl">Challenge Brief</td>
+              <td class="cv2-brief-cell"><textarea id="cv2-brief-0" rows="3" placeholder="—" oninput="CV2.epBriefs[0]=this.value; CV2.epTouched[0]=true;"></textarea></td>
+              <td class="cv2-brief-cell"><textarea id="cv2-brief-1" rows="3" placeholder="—" oninput="CV2.epBriefs[1]=this.value; CV2.epTouched[1]=true;"></textarea></td>
+              <td class="cv2-brief-cell"><textarea id="cv2-brief-2" rows="3" placeholder="—" oninput="CV2.epBriefs[2]=this.value; CV2.epTouched[2]=true;"></textarea></td>
+            </tr>
+            <tr>
+              <td class="cv2-rowlbl">Notes <span class="cv2-opt">optional</span></td>
+              <td class="cv2-notes-cell"><textarea id="cv2-notes-0" rows="2" placeholder="optional…" oninput="CV2.epNotes[0]=this.value"></textarea></td>
+              <td class="cv2-notes-cell"><textarea id="cv2-notes-1" rows="2" placeholder="optional…" oninput="CV2.epNotes[1]=this.value"></textarea></td>
+              <td class="cv2-notes-cell"><textarea id="cv2-notes-2" rows="2" placeholder="optional…" oninput="CV2.epNotes[2]=this.value"></textarea></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="setup-actions">
+        <button class="btn primary" id="cv2-continue" style="background:var(--cobalt);border-color:var(--cobalt);opacity:.5;cursor:default" disabled onclick="cv2Continue()">Choose your cooks <span class="arr">→</span></button>
+        <p class="field-hint" id="cv2-gate-hint">Roll or set all three dice to continue.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COMPETITION v2 BOARD (3-episode arc) ============ -->
+<section class="screen" id="screen-cv2board">
+  <div class="topbar">
+    <span class="crumb" id="cv2b-crumb">Cooking Show Competition</span>
+    <button class="btn ghost small" onclick="cv2ConfirmExit()">New season</button>
+  </div>
+  <div class="panel">
+    <span class="kicker" id="cv2b-kick">The season</span>
+    <h2 class="title" id="cv2b-title">Your <span class="serif-accent comp-accent">three episodes</span></h2>
+    <p class="lede" id="cv2b-lede"></p>
+    <div class="cv2-board-eps" id="cv2b-eps"></div>
+  </div>
 </section>
 
 <!-- ============ SETUP ============ -->
@@ -2498,7 +2845,7 @@ document.addEventListener("click", e=>{
   if(!pn) return;
   if(pn.classList.contains("pn-classroom")) goClassroom();
   else if(pn.classList.contains("pn-kitchen")) show("title");
-  else if(pn.classList.contains("pn-competition")) goCompSetup();
+  else if(pn.classList.contains("pn-competition")) goCompetition();
   else if(pn.classList.contains("pn-community")) goCommunity();
   else if(pn.classList.contains("pn-blog")) goBlog();
 });
@@ -2949,12 +3296,26 @@ function freshSeason(players, timed, custom){
     players: players.map(n=>({name:n})),
     timed: !!timed,
     custom: custom || null,
+    // product tag: which franchise product owns this season.
+    //  - a custom season carries its own product ("kitchen" DIY or "competition")
+    //  - legacy custom seasons (built before this tag existed) default to "competition",
+    //    which was their only meaning at the time — keeps old saves working.
+    //  - a non-custom season is the Kitchen debut season.
+    product: custom ? (custom.product || "competition") : "kitchen",
     rule: (custom && custom.rule) ? custom.rule : null,
     deck: (custom ? custom.concepts : CONCEPTS).map(c=>({id:c.id, status:"available", frozen:false, cookedIn:null})),
     results: {},
     completedCount: 0
   };
 }
+/* ---- product helpers: read the tag instead of assuming custom == Competition ----
+   isComp(): true when the active season is a Competition (custom or, via legacy, any
+   pre-tag custom season). isKitchenCustom(): true for a Kitchen DIY season. These
+   replace the old "!!S.custom" checks wherever the distinction is Kitchen-vs-Competition
+   rather than debut-vs-custom. */
+function seasonProduct(s){ s = s || (typeof S!=="undefined"?S:null); if(!s) return null; return s.product || (s.custom ? "competition" : "kitchen"); }
+function isComp(s){ return seasonProduct(s) === "competition"; }
+function isKitchenCustom(s){ s = s || (typeof S!=="undefined"?S:null); return !!(s && s.custom) && seasonProduct(s) === "kitchen"; }
 
 /* ---- persistence (works on a real site, harmless in preview) ---- */
 const storeKey = "csk-season-v1";
@@ -3235,7 +3596,7 @@ function journalArchiveScorecard(){
   const sid = S.seasonId || "s0";
   let source, seasonName;
   if(isTest){ const ep = CSC_EPISODES[idx]; source = "kitchen"; seasonName = "Unit " + ((ep && Number(ep.ep)) || (idx+1)) + " test"; }
-  else if(S.custom){ source = "competition"; seasonName = S.custom.name || "Competition"; }
+  else if(S.custom){ source = isComp() ? "competition" : "kitchen"; seasonName = S.custom.name || (isComp() ? "Competition" : "Kitchen season"); }
   else { source = "kitchen"; seasonName = "Debut season"; }
   const id = isTest ? ("test-" + idx + "-" + sid) : (sid + "-ch" + idx);
   const entry = {
@@ -3266,6 +3627,593 @@ function journalArchiveScorecard(){
 
 let SETUP_MODE = "solo";
 function startClassicSetup(){ PENDING_CUSTOM = null; SETUP_MODE = "solo"; goSetup(); }
+
+/* ============================================================================
+   KITCHEN DIY — "Build your own season" (6 units)
+   The Kitchen-side builder. Unlike the Competition builder it carries NO
+   multiplayer machinery: no table rule (Solo Station / Host's Table / Pass the
+   Knife), no set-menu/à-la-carte brief timing, no Story-of-the-Season chips.
+   It is exactly: rename the 12 concepts + write the 6 unit briefs. The season
+   it produces is tagged product:"kitchen", so the shared engine brands it
+   crimson and files its scorecards/journal as Kitchen. The underlying unit
+   mechanics (pick/cook/burn/freeze, reveals) are inherited from CHALLENGES.
+   ========================================================================== */
+function goKitchenBuild(){
+  $("kb-concepts").innerHTML = CONCEPTS.map((c,i)=>`
+    <div class="comp-conc">
+      <span class="dot" style="background:${c.color}"></span>
+      <input type="text" id="kb-c${i}" maxlength="18" placeholder="${esc(c.name)}">
+    </div>`).join("");
+  $("kb-units").innerHTML = CHALLENGES.map((c,i)=>{
+    const isFinale = (i===CHALLENGES.length-1);
+    const unitNo = isFinale ? "Finale" : ("Unit " + (i+1));
+    return `
+    <div class="comp-ch">
+      <span class="ch-no">${unitNo} &middot; ${esc(c.mech)}</span>
+      <input type="text" id="kb-t${i}" maxlength="48" placeholder="${esc(isFinale ? c.theme : "e.g. "+c.theme)}">
+      <textarea id="kb-b${i}" maxlength="220" placeholder="Optional one-liner about what this unit is about"></textarea>
+    </div>`;
+  }).join("");
+  show("kitchenbuild");
+}
+function kbFillClassic(){ CONCEPTS.forEach((c,i)=>{ const el=$("kb-c"+i); if(el) el.value = c.name; }); }
+function kbClear(){ CONCEPTS.forEach((c,i)=>{ const el=$("kb-c"+i); if(el) el.value = ""; }); }
+function kitchenBuildContinue(){
+  const name = ($("kb-name") ? $("kb-name").value.trim() : "") || "My Kitchen Season";
+  const concepts = CONCEPTS.map((c,i)=>{
+    const v = ($("kb-c"+i) ? $("kb-c"+i).value : "").trim();
+    return {id:"cc"+i, name: v || c.name, color:c.color, fg:c.fg, dood:c.id};
+  });
+  const challenges = CHALLENGES.map((c,i)=>{
+    const t = ($("kb-t"+i) ? $("kb-t"+i).value : "").trim();
+    const b = ($("kb-b"+i) ? $("kb-b"+i).value : "").trim();
+    const copy = JSON.parse(JSON.stringify(c));
+    if(t) copy.theme = t;
+    if(b) copy.customBrief = b;
+    return copy;
+  });
+  const storyTitle = ($("kb-story") ? $("kb-story").value : "").trim();
+  const storyLine  = ($("kb-story-line") ? $("kb-story-line").value : "").trim();
+  // product:"kitchen" is the tag the whole shared engine keys off of.
+  // No rule / no briefMode — those are Competition-only concepts.
+  PENDING_CUSTOM = {
+    product: "kitchen",
+    name, concepts, challenges,
+    story: storyTitle ? { title: storyTitle, line: storyLine } : null
+  };
+  SETUP_MODE = "solo";
+  goSetup();
+}
+
+
+/* ============================================================================
+   COMPETITION LANDING — the two-mode entry (mirrors the Kitchen landing).
+   All Competition entry points (nav pill, Hub link, Hub buttons) now open this
+   landing instead of dropping straight into the builder. From here:
+     · Play along  → the pre-set 3-episode season (Workstream 4; "coming soon" for now)
+     · Build your own → the DIY builder. Currently routes to the OLD builder
+       (goCompSetup) as the working fallback; Workstream 3 swaps in the dice builder.
+   ========================================================================== */
+function goCompetition(){ show("complanding"); }
+
+/* ============================================================================
+   COMPETITION v2 — the dice builder (Workstream 3)
+   Deck-free, 3-episode arc. Two dice + a coin drive setup; each can be rolled
+   or overridden. This block is the DATA + LOGIC foundation (no UI):
+     · CV2_TYPES        — the six challenge-die faces (+ custom write-in support)
+     · CV2_PAIRS()      — the six concept-die faces, derived from CONCEPTS by pair
+     · cv2RollConcept / cv2RollChallenge / cv2FlipCoin — the randomizers
+     · cv2SuggestBrief  — the dice-suggested episode brief (player may edit)
+     · buildCompV2Season — assembles a product:"competition" season, 3 episodes
+   The 3-episode arc: Ep1 = leading pole · Ep2 = other pole · Finale = both poles.
+   ========================================================================== */
+
+// Challenge-die faces. `id` is stable; `label` shows on the die; `hint` seeds briefs.
+const CV2_TYPES = [
+  {id:"times",    label:"Times",    hint:"a time — an era, a decade, a moment of day"},
+  {id:"places",   label:"Places",   hint:"a place — a region, a city, a room"},
+  {id:"people",   label:"People",   hint:"a person — someone who shapes the dish"},
+  {id:"cultures", label:"Cultures", hint:"a culture — a tradition, a cuisine, a heritage"},
+  {id:"occasions", label:"Occasion", hint:"an occasion — a celebration, a holiday, a moment that matters"},
+  {id:"flavors",  label:"Flavors",  hint:"a flavor — a taste that leads the plate"}
+];
+function cv2Type(id){ return CV2_TYPES.find(t=>t.id===id) || null; }
+
+// Concept-die faces: the six antithetical pairs, derived from CONCEPTS (pair order,
+// grounded pole first). Each face carries both poles so the coin can pick the leader.
+function CV2_PAIRS(){
+  const pairs = [];
+  for(let i=0;i<CONCEPTS.length;i+=2){
+    const deep = CONCEPTS[i], light = CONCEPTS[i+1];
+    pairs.push({
+      pairIndex: i/2,
+      deep:  {id:deep.id,  name:deep.name,  color:deep.color,  fg:deep.fg},
+      light: {id:light.id, name:light.name, color:light.color, fg:light.fg},
+      hue: deep.color   // the shared family hue shown on the die face
+    });
+  }
+  return pairs; // 6 entries
+}
+function cv2PairByIndex(i){ const p = CV2_PAIRS(); return p[((i%p.length)+p.length)%p.length]; }
+
+// ---- Randomizers ----
+function cv2RollConcept(){ return Math.floor(Math.random()*6); }              // -> pairIndex 0..5
+function cv2RollChallenge(){ return CV2_TYPES[Math.floor(Math.random()*6)].id; } // -> type id
+function cv2FlipCoin(){ return Math.random()<0.5 ? "deep" : "light"; }         // -> which pole leads
+
+// ---- Dice-suggested brief (player may edit) ----
+// Fallback suggestions if a season is ever built without table-resolved briefs.
+// Kept in sync with the table templates. `phrase` is the natural inspiration
+// phrase ("a place" / "a person"); falls back to a generic if type unknown.
+function cv2InspBareFor(typeId){
+  const map={times:"time",places:"place",people:"a person",cultures:"culture",occasions:"occasion",flavors:"flavor"};
+  return map[typeId] || "inspiration";
+}
+function cv2SuggestBrief(typeId, poleName){
+  return `Starting from a sense of ${cv2InspBareFor(typeId)}, how does your dish suggest ${poleName}?`;
+}
+function cv2SuggestFinaleBrief(typeId, deepName, lightName){
+  return `How does serving up ${deepName} and ${lightName} together impart a sense of ${cv2InspBareFor(typeId)}?`;
+}
+
+// ---- Season assembly ----
+// cfg = { name, story, pairIndex, typeId, customType, lead ("deep"|"light"),
+//         episodes:[{brief},{brief},{brief}] }  (briefs already resolved/edited)
+function buildCompV2Season(cfg){
+  const pair = cv2PairByIndex(cfg.pairIndex);
+  const lead = cfg.lead === "light" ? pair.light : pair.deep;
+  const other = cfg.lead === "light" ? pair.deep : pair.light;
+  const typeLabel = cfg.customType ? cfg.customType : (cv2Type(cfg.typeId) ? cv2Type(cfg.typeId).label : "");
+  const eps = cfg.episodes || [];
+  return {
+    product: "competition",
+    v2: true,                       // marks the new dice-based Competition season
+    name: cfg.name || "My Competition",
+    story: cfg.story || null,
+    pairIndex: cfg.pairIndex,
+    challengeType: cfg.customType ? "custom" : cfg.typeId,
+    challengeLabel: typeLabel,
+    lead: cfg.lead,
+    pair: { deep: pair.deep, light: pair.light, hue: pair.hue },
+    episodes: [
+      { ep:1, role:"lead",   concept: lead,  brief: (eps[0]&&eps[0].brief)||cv2SuggestBrief(cfg.typeId, lead.name) },
+      { ep:2, role:"counter",concept: other, brief: (eps[1]&&eps[1].brief)||cv2SuggestBrief(cfg.typeId, other.name) },
+      { ep:3, role:"finale", concept: {both:true, deep:pair.deep, light:pair.light},
+        brief: (eps[2]&&eps[2].brief)||cv2SuggestFinaleBrief(cfg.typeId, pair.deep.name, pair.light.name) }
+    ],
+    results: {},
+    completedCount: 0
+  };
+}
+
+/* ---- Stage 2 (table model): dice builder state + handlers ----
+   Dice order: inspiration → concept → coin. Each roll fills cells in the
+   season-brief table. Cells pre-fill templated suggestions; the player writes
+   (edits tracked via *Touched flags so we don't clobber their words on re-roll). */
+let CV2 = {
+  inspireId:null, customInspire:"",   // inspiration die
+  pairIndex:null,                     // concept die
+  lead:null,                          // coin: "deep"|"light"
+  seasonBrief:null, seasonBriefTouched:false,
+  epBriefs:[null,null,null], epTouched:[false,false,false],
+  epNotes:["","",""]
+};
+
+// The inspiration label the templates use ("a place", "a person", …). For the
+// six known types we use a natural phrase; for a custom write-in we use it as-is.
+const CV2_INSPIRE_PHRASE = {
+  times:"a time", places:"a place", people:"a person",
+  cultures:"a culture", occasions:"an occasion", flavors:"a flavor"
+};
+function cv2InspireWord(){ // the short word shown on the die + used in the season-brief line
+  if(CV2.customInspire) return CV2.customInspire;
+  const t = cv2Type(CV2.inspireId); return t ? t.label.toLowerCase() : "";
+}
+function cv2InspirePhrase(){ // article form for the season brief ("a place", "a person")
+  if(CV2.customInspire) return CV2.customInspire;
+  return CV2_INSPIRE_PHRASE[CV2.inspireId] || "an inspiration";
+}
+// Bare, singular, article-less form for the challenge briefs ("a sense of place").
+// Exception: "people" reads better with its article — "a sense of a person".
+const CV2_INSPIRE_BARE = {
+  times:"time", places:"place", people:"a person",
+  cultures:"culture", occasions:"occasion", flavors:"flavor"
+};
+function cv2InspireBare(){
+  if(CV2.customInspire) return CV2.customInspire;
+  return CV2_INSPIRE_BARE[CV2.inspireId] || "inspiration";
+}
+
+function goCompV2(){
+  CV2 = { inspireId:null, customInspire:"", pairIndex:null, lead:null,
+    seasonBrief:null, seasonBriefTouched:false,
+    epBriefs:[null,null,null], epTouched:[false,false,false], epNotes:["","",""] };
+  // populate inspiration <select>
+  const iSel=$("cv2-inspire-select");
+  if(iSel){ iSel.innerHTML='<option value="">— or choose —</option>'+CV2_TYPES.map(t=>`<option value="${t.id}">${esc(t.label)}</option>`).join(""); }
+  // populate concept <select>
+  const cSel=$("cv2-concept-select");
+  if(cSel){ cSel.innerHTML='<option value="">— or choose —</option>'+CV2_PAIRS().map(p=>`<option value="${p.pairIndex}">${esc(p.deep.name)} ↔ ${esc(p.light.name)}</option>`).join(""); }
+  // reset dice cubes to empty/placeholder state
+  const icube=$("cv2-inspire-cube"); if(icube){ icube.classList.add("cv2-empty-cube"); icube.querySelectorAll(".cface").forEach(f=>{ f.innerHTML=""; f.style.background="var(--white)"; }); icube.style.transition="none"; icube.style.transform="rotateX(-55deg) rotateY(-22deg)"; void icube.offsetWidth; icube.style.transition=""; }
+  const ccube=$("cv2-concept-cube"); if(ccube){ ccube.classList.add("cv2-empty-cube"); ccube.querySelectorAll(".cface").forEach(f=>{ f.style.background="#E9E4D6"; }); ccube.style.transition="none"; ccube.style.transform="rotateX(-55deg) rotateY(-22deg)"; void ccube.offsetWidth; ccube.style.transition=""; }
+  if($("cv2-inspire-readout")) $("cv2-inspire-readout").textContent="—";
+  if($("cv2-concept-readout")) $("cv2-concept-readout").textContent="—";
+  if($("cv2-coin-readout")) $("cv2-coin-readout").textContent="—";
+  const coin=$("cv2-coin"); if(coin){ coin.className="cv2-coin cv2-empty"; coin.innerHTML='<span class="cv2-q">?</span>'; }
+  const coinSel=$("cv2-coin-select"); if(coinSel){ coinSel.innerHTML='<option value="">— or choose —</option>'; }
+  if($("cv2-inspire-custom")) $("cv2-inspire-custom").value="";
+  if($("cv2-name")) $("cv2-name").value="";
+  // clear table cells
+  ["cv2-season-brief","cv2-brief-0","cv2-brief-1","cv2-brief-2","cv2-notes-0","cv2-notes-1","cv2-notes-2"].forEach(id=>{ if($(id)) $(id).value=""; });
+  [0,1,2].forEach(i=>{ const c=$("cv2-cell-concept-"+i); if(c) c.innerHTML='<span class="cv2-cell-empty">—</span>'; });
+  if($("cv2-tag-inspire")) $("cv2-tag-inspire").innerHTML='<span class="cv2-tag-ph">inspiration</span>';
+  if($("cv2-tag-concept")) $("cv2-tag-concept").innerHTML='<span class="cv2-tag-ph">concepts</span>';
+  cv2UpdateGate();
+  show("compv2");
+}
+
+// ===== 3D CUBE ROLL ENGINE =====
+// Each cube has 6 faces (front/back/right/left/top/bottom). We map each face to
+// a value, then "roll" by rotating the cube so the chosen face comes to front,
+// adding whole extra spins for drama. One smooth transition, then a landing pop.
+let CV2_ROLLING = false;
+
+// Face order matches the DOM: [front, back, right, left, top, bottom].
+// Target rotation (deg) that brings each face to the front of the viewer.
+const CV2_FACE_ROT = [
+  {x:0,   y:0},    // front
+  {x:0,   y:180},  // back
+  {x:0,   y:-90},  // right
+  {x:0,   y:90},   // left
+  {x:-90, y:0},    // top
+  {x:90,  y:0}     // bottom
+];
+
+// Real dice are read on the TOP face, so the camera looks DOWN at the cube and a
+// roll brings the winning face face-up (not front-facing).
+// CV2_VIEW tilts the cube so we're looking down on it in a 3/4 view.
+const CV2_VIEW = {x:-55, y:-22};
+// Per-face orientation that brings that face to the TOP.
+// Kept as an {ax,ay,az} triple so every transform uses an identical function list
+// (rotateX rotateY rotateX rotateY rotateZ) — CSS then interpolates the ANGLES,
+// which is what preserves multi-turn spins during the roll animation.
+const CV2_FACE_TOP = [
+  {ax: 90, ay:0, az:  0},  // front  -> top
+  {ax:-90, ay:0, az:  0},  // back   -> top
+  {ax:  0, ay:0, az:-90},  // right  -> top
+  {ax:  0, ay:0, az: 90},  // left   -> top
+  {ax:  0, ay:0, az:  0},  // top    (already up)
+  {ax:180, ay:0, az:  0}   // bottom -> top
+];
+function cv2Pose(faceIdx, spin){
+  const f = CV2_FACE_TOP[faceIdx] || CV2_FACE_TOP[4];
+  const s = spin || 0;
+  return `rotateX(${CV2_VIEW.x}deg) rotateY(${CV2_VIEW.y}deg) `+
+         `rotateX(${f.ax - s}deg) rotateY(${f.ay}deg) rotateZ(${f.az - s}deg)`;
+}
+function cv2FaceTransform(faceIdx){ return cv2Pose(faceIdx, 0); }
+// Face content (word / colour split) sits at a different screen angle depending on
+// which face is on top. Measured offsets normalise every landed face to the same
+// natural tilt the front face has, so a word always reads at the same angle.
+const CV2_FACE_SPIN = [0, 180, 98, -82, 0, 0]; // front, back, right, left, top, bottom
+// Inspiration cube faces show WORDS (concept die = color; inspiration die = word —
+// two different visual languages, no icon overlap with the Kitchen concept cards).
+const CV2_INSPIRE_FACE_IDS = ["times","places","people","cultures","occasions","flavors"];
+
+// paint the concept cube faces: each face split diagonally (TL→BR) into the
+// pair's two poles — deep color upper-left, light color lower-right — so the
+// face represents the whole antithetical pair, not a single hue.
+function cv2PaintConceptCube(){
+  const cube=$("cv2-concept-cube"); if(!cube) return;
+  const faces=cube.querySelectorAll(".cface");
+  const pairs=CV2_PAIRS();
+  faces.forEach((f,i)=>{ const p=pairs[i]; if(p){
+    const ang = 135 + (CV2_FACE_SPIN[i]||0);
+    f.style.background=`linear-gradient(${ang}deg, ${p.deep.color} 0 49.5%, ${p.light.color} 50.5% 100%)`;
+    f.style.borderColor="var(--ink)"; f.textContent="";
+  }});
+}
+// paint the inspiration cube faces with the six words
+function cv2PaintInspireCube(){
+  const cube=$("cv2-inspire-cube"); if(!cube) return;
+  const faces=cube.querySelectorAll(".cface");
+  faces.forEach((f,i)=>{ const id=CV2_INSPIRE_FACE_IDS[i]; const t=id?cv2Type(id):null;
+    const rot=CV2_FACE_SPIN[i]||0;
+    f.innerHTML = t ? `<span class="cface-word" style="transform:rotate(${rot}deg)">${esc(t.label)}</span>` : ""; f.style.background="var(--white)"; });
+}
+
+// Roll a cube to land face `faceIdx` at front, with extra spins. Calls onLand after.
+function cv2RollCube(cube, stage, faceIdx, onLand){
+  if(CV2_ROLLING) return;
+  CV2_ROLLING = true;
+  // tumble: spin two full turns on X and Z, settling into the face-up pose
+  cube.style.transform = cv2Pose(faceIdx, 720);
+  // when the transform transition ends (~1s), pop + commit
+  let done=false;
+  const finish = ()=>{
+    if(done) return; done=true;
+    cube.removeEventListener("transitionend", finish);
+    // normalize to the resting pose (no extra spins) so future rolls compute cleanly
+    cube.style.transition="none";
+    cube.style.transform = cv2FaceTransform(faceIdx);
+    void cube.offsetWidth;
+    cube.style.transition="";
+    if(stage){ stage.classList.remove("cv2-pop"); void stage.offsetWidth; stage.classList.add("cv2-pop"); }
+    onLand();
+    setTimeout(()=>{ if(stage) stage.classList.remove("cv2-pop"); CV2_ROLLING=false; }, 440);
+  };
+  cube.addEventListener("transitionend", finish);
+  setTimeout(finish, 1150); // fallback in case transitionend doesn't fire
+}
+
+// ----- 1 · inspiration die -----
+function cv2DoRollInspire(){
+  const cube=$("cv2-inspire-cube"), stage=cube?cube.closest(".cv2-cube-stage"):null; if(!cube) return;
+  if($("cv2-inspire-select")) $("cv2-inspire-select").value="";
+  if($("cv2-inspire-custom")) $("cv2-inspire-custom").value="";
+  cube.classList.remove("cv2-empty-cube");
+  cv2PaintInspireCube();
+  const result = cv2RollChallenge();               // an inspiration id
+  const faceIdx = CV2_INSPIRE_FACE_IDS.indexOf(result);
+  cv2RollCube(cube, stage, faceIdx>=0?faceIdx:0, ()=> cv2SetInspire(result, false));
+}
+function cv2SetInspire(typeId, animate){
+  if(typeId===""||typeId==null) return;
+  CV2.inspireId=typeId; CV2.customInspire="";
+  if($("cv2-inspire-custom")) $("cv2-inspire-custom").value="";
+  cv2RenderInspireDie(typeId);
+  cv2AfterChange();
+}
+function cv2SetCustomInspire(txt){
+  txt=(txt||"").trim();
+  if(txt){ CV2.customInspire=txt; CV2.inspireId=null; if($("cv2-inspire-select")) $("cv2-inspire-select").value=""; }
+  else { CV2.customInspire=""; }
+  cv2RenderInspireReadoutCustom(txt);
+  cv2AfterChange();
+}
+// readout + cube face for a chosen inspiration (used by roll AND dropdown)
+function cv2RenderInspireDie(typeId){
+  const cube=$("cv2-inspire-cube"); const ro=$("cv2-inspire-readout");
+  const t=cv2Type(typeId);
+  if(cube){ cube.classList.remove("cv2-empty-cube"); cv2PaintInspireCube();
+    const faceIdx=CV2_INSPIRE_FACE_IDS.indexOf(typeId);
+    if(faceIdx>=0 && !CV2_ROLLING){ cube.style.transition="transform .5s ease"; cube.style.transform=cv2FaceTransform(faceIdx); }
+  }
+  if(ro) ro.textContent = t ? t.label : "";
+}
+function cv2RenderInspireReadoutCustom(txt){
+  const ro=$("cv2-inspire-readout"); if(ro) ro.textContent = txt || "—";
+  // custom inspiration: cube shows a neutral face
+  const cube=$("cv2-inspire-cube"); if(cube && txt){ cube.classList.remove("cv2-empty-cube"); }
+}
+
+// ----- 2 · concept die -----
+function cv2DoRollConcept(){
+  const cube=$("cv2-concept-cube"), stage=cube?cube.closest(".cv2-cube-stage"):null; if(!cube) return;
+  if($("cv2-concept-select")) $("cv2-concept-select").value="";
+  cube.classList.remove("cv2-empty-cube");
+  cv2PaintConceptCube();
+  const result = cv2RollConcept();                 // pair index 0..5 == face index
+  cv2RollCube(cube, stage, result, ()=> cv2SetConcept(result, false));
+}
+function cv2SetConcept(idx, animate){
+  if(idx===""||idx==null) return;
+  CV2.pairIndex=Number(idx);
+  cv2RenderConceptDie();
+  cv2PopulateCoinSelect();
+  cv2RenderCoin(false);
+  cv2AfterChange();
+}
+function cv2RenderConceptDie(){
+  const cube=$("cv2-concept-cube"), ro=$("cv2-concept-readout");
+  if(CV2.pairIndex==null){ if(ro) ro.textContent="—"; return; }
+  const p=cv2PairByIndex(CV2.pairIndex);
+  if(cube){ cube.classList.remove("cv2-empty-cube"); cv2PaintConceptCube();
+    if(!CV2_ROLLING){ cube.style.transition="transform .5s ease"; cube.style.transform=cv2FaceTransform(CV2.pairIndex); }
+  }
+  if(ro){
+    // readout names the pair, sequenced if the coin has landed
+    const c1 = CV2.lead ? (CV2.lead==="light"?p.light:p.deep) : p.deep;
+    const c2 = CV2.lead ? (CV2.lead==="light"?p.deep:p.light) : p.light;
+    ro.innerHTML = `<span style="color:${c1.color}">${esc(c1.name)}</span> &amp; <span style="color:${c2.color}">${esc(c2.name)}</span>`;
+  }
+}
+
+// ----- 3 · coin (sequence) -----
+function cv2PopulateCoinSelect(){
+  const sel=$("cv2-coin-select"); if(!sel) return;
+  if(CV2.pairIndex==null){ sel.innerHTML='<option value="">— or choose —</option>'; return; }
+  const p=cv2PairByIndex(CV2.pairIndex);
+  sel.innerHTML='<option value="">— or choose —</option>'+
+    `<option value="deep">${esc(p.deep.name)} leads</option>`+
+    `<option value="light">${esc(p.light.name)} leads</option>`;
+  if(CV2.lead) sel.value=CV2.lead;
+}
+function cv2DoFlip(){
+  if(CV2.pairIndex==null){ cv2Flash("Roll or choose the concept die first — the coin sequences its two poles."); return; }
+  if(CV2_ROLLING) return;
+  const coin=$("cv2-coin"); if(!coin) return;
+  CV2_ROLLING = true;
+  const result = cv2FlipCoin();
+  coin.classList.remove("flipping"); void coin.offsetWidth; coin.classList.add("flipping");
+  setTimeout(()=>{
+    coin.classList.remove("flipping");
+    cv2SetLead(result, false);
+    if($("cv2-coin-select")) $("cv2-coin-select").value=CV2.lead;
+    CV2_ROLLING = false;
+  }, 600);
+}
+function cv2SetLead(which, animate){
+  if(which===""||which==null) return;
+  CV2.lead=which;
+  cv2RenderCoin(!!animate);
+  cv2RenderConceptDie();
+  cv2AfterChange();
+}
+function cv2RenderCoin(animate){
+  const coin=$("cv2-coin"), ro=$("cv2-coin-readout");
+  if(CV2.pairIndex==null || !CV2.lead){ coin.className="cv2-coin cv2-empty"; coin.innerHTML='<span class="cv2-q">?</span>'; if(ro) ro.textContent="—"; return; }
+  const p=cv2PairByIndex(CV2.pairIndex);
+  const pole=CV2.lead==="deep"?p.deep:p.light;
+  coin.className="cv2-coin";
+  coin.style.background=pole.color; coin.style.color=pole.fg;
+  coin.innerHTML=`<span class="cv2-lead-name" style="color:${pole.fg}">${esc(pole.name)}</span>`;
+  if(ro) ro.innerHTML = `<span style="color:${pole.color}">${esc(pole.name)}</span> leads`;
+}
+
+// ----- fill the table as dice land -----
+function cv2AfterChange(){ cv2FillTable(); cv2UpdateGate(); }
+function cv2Ready(){ return (CV2.inspireId||CV2.customInspire) && CV2.pairIndex!=null && CV2.lead; }
+
+function cv2FillTable(){
+  const chip=(c)=>`<span class="cv2-chip" style="background:${c.color};color:${c.fg}">${esc(c.name)}</span>`;
+
+  // --- Season Brief tags row: each chip lands the moment its die is set ---
+  // Inspiration chip (cobalt/neutral) — fills on the inspiration roll, before anything else.
+  const inspSlot=$("cv2-tag-inspire");
+  if(inspSlot){
+    const w=cv2InspireWord();
+    inspSlot.innerHTML = w ? `<span class="cv2-tag-inspire">${esc(w)}</span>` : `<span class="cv2-tag-ph">inspiration</span>`;
+  }
+  // Concept-pair chips — fill on the concept roll.
+  const concSlot=$("cv2-tag-concept");
+  if(concSlot){
+    if(CV2.pairIndex!=null){
+      const p=cv2PairByIndex(CV2.pairIndex);
+      concSlot.innerHTML = chip(p.deep)+`<span class="cv2-tag-arrow">&amp;</span>`+chip(p.light);
+    } else {
+      concSlot.innerHTML = `<span class="cv2-tag-ph">concepts</span>`;
+    }
+  }
+
+  // --- Concept row: holds empty until the COIN flip sets the sequence.
+  // (It's the coin that decides which concept is 1 vs 2, so there's nothing
+  //  meaningful to show until it lands.) ---
+  if(CV2.pairIndex!=null && CV2.lead){
+    const p=cv2PairByIndex(CV2.pairIndex);
+    const c1 = CV2.lead==="light"?p.light:p.deep;
+    const c2 = CV2.lead==="light"?p.deep:p.light;
+    if($("cv2-cell-concept-0")) $("cv2-cell-concept-0").innerHTML=chip(c1);
+    if($("cv2-cell-concept-1")) $("cv2-cell-concept-1").innerHTML=chip(c2);
+    if($("cv2-cell-concept-2")) $("cv2-cell-concept-2").innerHTML=chip(p.deep)+chip(p.light);
+  } else {
+    [0,1,2].forEach(i=>{ const c=$("cv2-cell-concept-"+i); if(c) c.innerHTML='<span class="cv2-cell-empty">—</span>'; });
+  }
+
+  // --- Templated sentences: complete ONLY when all three are set (per Alexa) ---
+  // and only into cells the player hasn't personally edited.
+  if(cv2Ready()){
+    const p=cv2PairByIndex(CV2.pairIndex);
+    const c1=(CV2.lead==="light"?p.light:p.deep).name;
+    const c2=(CV2.lead==="light"?p.deep:p.light).name;
+    const insp=cv2InspirePhrase();   // "a place" (season brief)
+    const bare=cv2InspireBare();     // "place" (challenge briefs)
+    const sb=`Starting from ${insp}, cook a season that explores ${c1} and ${c2}.`;
+    if(!CV2.seasonBriefTouched){ CV2.seasonBrief=sb; if($("cv2-season-brief")) $("cv2-season-brief").value=sb; }
+    const b0=`Starting from a sense of ${bare}, how does your dish suggest ${c1}?`;
+    const b1=`Maintaining a sense of ${bare}, how can your plate convey ${c2} instead?`;
+    const b2=`How does serving up ${c1} and ${c2} together impart a sense of ${bare}?`;
+    [b0,b1,b2].forEach((b,i)=>{ if(!CV2.epTouched[i]){ CV2.epBriefs[i]=b; if($("cv2-brief-"+i)) $("cv2-brief-"+i).value=b; } });
+  }
+}
+
+function cv2UpdateGate(){
+  const btn=$("cv2-continue"), hint=$("cv2-gate-hint");
+  const ready=cv2Ready();
+  if(btn){ btn.disabled=!ready; btn.style.opacity=ready?"1":".5"; btn.style.cursor=ready?"pointer":"default"; }
+  if(hint) hint.style.display=ready?"none":"";
+}
+function cv2Flash(msg){ const hint=$("cv2-gate-hint"); if(hint){ hint.textContent=msg; hint.style.display=""; setTimeout(()=>{ hint.textContent="Roll or set all three dice to continue."; cv2UpdateGate(); },3200); } }
+
+function cv2Continue(){
+  if(!cv2Ready()) return;
+  const name=($("cv2-name")?$("cv2-name").value.trim():"")||"My Competition";
+  // pull final edited values straight from the cells
+  const seasonBrief=($("cv2-season-brief")?$("cv2-season-brief").value.trim():"")||CV2.seasonBrief||"";
+  const epBriefs=[0,1,2].map(i=> ($("cv2-brief-"+i)?$("cv2-brief-"+i).value.trim():"") || CV2.epBriefs[i] || "");
+  const epNotes=[0,1,2].map(i=> $("cv2-notes-"+i)?$("cv2-notes-"+i).value.trim():"" );
+  const cfg={
+    name,
+    story: seasonBrief ? {title:name, line:seasonBrief} : null, // season brief rides along as the story line
+    seasonBrief,
+    pairIndex: CV2.pairIndex,
+    typeId: CV2.inspireId,
+    customType: CV2.customInspire || null,
+    lead: CV2.lead,
+    episodes: epBriefs.map((b,i)=> ({brief:b, notes:epNotes[i]}))
+  };
+  PENDING_COMPV2 = buildCompV2Season(cfg);
+  // carry the season brief + notes onto the built season
+  PENDING_COMPV2.seasonBrief = seasonBrief;
+  PENDING_COMPV2.episodes.forEach((e,i)=>{ e.notes = epNotes[i]||""; });
+  SETUP_MODE = "multi";
+  goSetup();
+}
+let PENDING_COMPV2 = null;
+
+/* ---- Stage 3: the 3-episode board ---- */
+function cv2EpUnlocked(i){
+  // sequential arc: Ep1 always open; Ep2 after Ep1 done; Finale after Ep2 done.
+  if(!S || !S.episodes) return false;
+  const done = k => S.results && S.results[k] && S.results[k].done;
+  if(i===0) return true;
+  if(i===1) return done(0);
+  if(i===2) return done(0) && done(1);
+  return false;
+}
+function renderCompV2Board(){
+  if(!S || !S.v2) return;
+  const p = S.pair;
+  // header
+  const lead = S.lead==="light" ? p.light : p.deep;
+  const other = S.lead==="light" ? p.deep : p.light;
+  if($("cv2b-crumb")) $("cv2b-crumb").textContent = "Cooking Show Competition · " + (S.name||"Your season");
+  if($("cv2b-kick")) $("cv2b-kick").textContent = S.story && S.story.title ? ("✦ " + S.story.title) : "The season";
+  const chipH = (c)=>`<span class="cv2-bchip" style="background:${c.color};color:${c.fg}">${esc(c.name)}</span>`;
+  if($("cv2b-title")) $("cv2b-title").innerHTML = `${chipH(p.deep)}<span style="opacity:.5;font-weight:700"> ↔ </span>${chipH(p.light)}`;
+  const doneCount = [0,1,2].filter(i=>S.results && S.results[i] && S.results[i].done).length;
+  let lede = "";
+  if(S.story && S.story.line) lede += esc(S.story.line) + " · ";
+  lede += `Challenge: <b>${esc(S.challengeLabel||"")}</b>. `;
+  lede += doneCount>=3 ? "Season complete — take a bow." : (S.lead ? `${esc(lead.name)} leads; ${esc(other.name)} answers.` : "");
+  if($("cv2b-lede")) $("cv2b-lede").innerHTML = lede;
+
+  // the three cards
+  const host = $("cv2b-eps"); if(!host) return;
+  host.innerHTML = S.episodes.map((e,i)=>{
+    const unlocked = cv2EpUnlocked(i);
+    const done = S.results && S.results[i] && S.results[i].done;
+    const roleLabel = e.role==="lead" ? "Opens the season" : e.role==="counter" ? "Answers back" : "Holds both";
+    const noLabel = e.ep===3 ? "Finale" : ("Episode " + e.ep);
+    let conceptChips;
+    if(e.concept.both){ conceptChips = chipH(e.concept.deep) + chipH(e.concept.light); }
+    else { conceptChips = chipH(e.concept); }
+    const cls = done ? "cv2-bcard done" : (unlocked ? "cv2-bcard" : "cv2-bcard locked");
+    const state = done ? '<span class="cv2-bstate" style="color:var(--muted)">✓ Plated</span>'
+      : unlocked ? '<span class="cv2-bstate" style="color:var(--cobalt)">Cook this →</span>'
+      : '<span class="cv2-bstate">Locked</span>';
+    const onclick = (unlocked && !done) ? ` onclick="openCompV2Episode(${i})"` : (done ? ` onclick="openCompV2Episode(${i})"` : "");
+    return `<div class="${cls}"${onclick}>
+      <span class="cv2-bno">${noLabel}</span>
+      <span class="cv2-brole">${roleLabel}</span>
+      <div class="cv2-bconcept">${conceptChips}</div>
+      <div class="cv2-bbrief">${esc(e.brief||"")}</div>
+      ${state}
+    </div>`;
+  }).join("");
+}
+function cv2ConfirmExit(){
+  if(confirm("Start a new Competition? Your current season will be cleared.")){
+    clearSave(); S=null; goCompetition();
+  }
+}
+// Episode cook screen — built in the next step. Stub keeps the board safe to click.
+function openCompV2Episode(i){
+  if(typeof renderCompV2Episode === "function"){ CV2_EP = i; renderCompV2Episode(); show("cv2ep"); }
+  else { alert("Episode "+(i+1)+" — cook screen coming in the next build step."); }
+}
+let CV2_EP = 0;
 
 function goCompSetup(){
   $("comp-concepts").innerHTML = CONCEPTS.map((c,i)=>`
@@ -3471,13 +4419,24 @@ function show(name){
   let mode;
   if(name==="classroom") mode = "csc";
   else if(name==="competition") mode = "comp";
+  else if(name==="complanding") mode = "comp";
+  else if(name==="compv2") mode = "comp";
+  else if(name==="cv2board") mode = "comp";
+  else if(name==="cv2ep") mode = "comp";
   else if(name==="community") mode = "csm";
   else if(name==="blog") mode = "blog";
   else if(name==="about") mode = "home";
   else if(name==="home") mode = "home";
   else if(name==="journal") mode = "home";
-  else if(name==="setup" && (PENDING_CUSTOM || (S && S.custom))) mode = "comp";
-  else if(["board","challenge","recap"].includes(name) && S && S.custom) mode = "comp";
+  else if(name==="kitchenbuild") mode = "csk";
+  // Shared gameplay screens brand by the active season's PRODUCT, not merely by
+  // "is it custom?". A Competition (custom or legacy) stays cobalt; a Kitchen season
+  // — debut OR the Kitchen DIY build — stays crimson.
+  else if(name==="setup"){
+    const stagedComp = PENDING_CUSTOM && (PENDING_CUSTOM.product||"competition")==="competition";
+    mode = (stagedComp || (S && S.custom && isComp())) ? "comp" : "csk";
+  }
+  else if(["board","challenge","recap"].includes(name)) mode = (S && S.custom && isComp()) ? "comp" : "csk";
   else mode = "csk";
   document.body.classList.toggle("csc", mode==="csc");
   document.body.classList.toggle("comp", mode==="comp");
@@ -3493,6 +4452,9 @@ function show(name){
     let navActive = name;
     if(["setup","board","challenge","recap"].includes(name)) navActive = (mode==="comp") ? "competition" : "title";
     if(name==="classroom") navActive = "classroom";
+    if(name==="complanding" || name==="competition") navActive = "competition";
+    if(name==="compv2") navActive = "competition";
+    if(name==="cv2board" || name==="cv2ep") navActive = "competition";
     if(document.querySelectorAll){
       document.querySelectorAll(".bn").forEach(b=>{
         if(b.classList) b.classList.toggle("active", b.getAttribute && b.getAttribute("data-nav")===navActive);
@@ -3538,8 +4500,14 @@ function goSetup(){
   setupPlayers = [""];
   renderPlayerInputs();
   const note = $("setup-custom-note");
-  if(PENDING_CUSTOM){
-    note.textContent = "Competition season loaded: \u201C" + PENDING_CUSTOM.name + "\u201D. Your concepts and challenges are in the deck. Just add cooks.";
+  if(PENDING_COMPV2){
+    note.textContent = "Competition loaded: \u201C" + PENDING_COMPV2.name + "\u201D. Your three episodes are set. Add your cooks to begin.";
+    note.style.display = "block";
+  } else if(PENDING_CUSTOM){
+    const isK = (PENDING_CUSTOM.product||"competition")==="kitchen";
+    note.textContent = (isK ? "Kitchen season loaded: \u201C" : "Competition season loaded: \u201C") + PENDING_CUSTOM.name +
+      (isK ? "\u201D. Your concepts and units are in the deck. Just add your name."
+           : "\u201D. Your concepts and challenges are in the deck. Just add cooks.");
     note.style.display = "block";
   } else {
     note.style.display = "none";
@@ -3575,6 +4543,19 @@ function removePlayer(i){
 function startSeason(){
   const names = setupPlayers.map(p=>p.trim()).filter(Boolean);
   if(names.length===0) names.push("Chef");
+  if(PENDING_COMPV2){
+    // Competition v2: the season is already fully built (deck-free, 3 episodes).
+    // Attach the roster + timing and use it directly; do NOT run freshSeason.
+    S = PENDING_COMPV2;
+    S.seasonId = Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+    S.players = names.map(n=>({name:n}));
+    S.timed = $("timed-toggle") ? $("timed-toggle").checked : false;
+    PENDING_COMPV2 = null; PENDING_CUSTOM = null;
+    save();
+    renderCompV2Board();
+    show("cv2board");
+    return;
+  }
   S = freshSeason(names, $("timed-toggle").checked, PENDING_CUSTOM);
   PENDING_CUSTOM = null;
   save();
@@ -3618,7 +4599,7 @@ function renderBoard(){
   const baseTitle = S.completedCount>=CHALS().length
     ? `Season complete: <span class="serif-accent">take a bow</span>`
     : (S.completedCount===CHALS().length-1 ? `It all comes down to <span class="serif-accent">the finale</span>` : `Choose your <span class="serif-accent">challenge</span>`);
-  $("board-title").innerHTML = (S.custom ? `<span class="comp-flag">Competition · ${esc(S.custom.name)}</span>` : "") + baseTitle + storyRibbon();
+  $("board-title").innerHTML = (S.custom ? `<span class="comp-flag">${isComp() ? "Competition" : "Kitchen"} · ${esc(S.custom.name)}</span>` : "") + baseTitle + storyRibbon();
 
   $("mini-deck").innerHTML = S.deck.map(c=>{
     const meta = concept(c.id);
@@ -4530,7 +5511,7 @@ function renderReview(){
   const r = S.results[chIdx];
   const isTest = (S.testRun != null);
   $("ch-crumb").textContent = (isTest ? "Unit Test Run" : (S.custom ? S.custom.name : "Debut Season")) + " · " + c.label + " · Scorecard";
-  const footLabel = isTest ? "Kitchen · Unit Test" : (S.custom ? "Competition · "+esc(S.custom.name) : "Kitchen · Debut Season");
+  const footLabel = isTest ? "Kitchen · Unit Test" : (S.custom ? (isComp() ? "Competition · " : "Kitchen · ")+esc(S.custom.name) : "Kitchen · Debut Season");
   const today = new Date().toLocaleDateString(undefined,{year:"numeric",month:"long",day:"numeric"});
 
   const cards = S.players.map((p,pi)=>{
@@ -4582,7 +5563,7 @@ function renderReview(){
         </div>
         <div class="rc-stamp">
           <span class="rc-stamp-show">Cooking Show</span>
-          <span class="rc-stamp-line">${isTest ? "Kitchen · Unit Test" : (S.custom ? "Competition" : "Kitchen")}</span>
+          <span class="rc-stamp-line">${isTest ? "Kitchen · Unit Test" : (S.custom ? (isComp() ? "Competition" : "Kitchen") : "Kitchen")}</span>
           <span class="rc-stamp-date">${today}</span>
         </div>
       </div>
@@ -5171,7 +6152,7 @@ function renderRecap(){
       <div class="recap-next" style="margin-top:26px;text-align:center">
         <p class="lede" style="margin:0 auto 14px;max-width:560px;text-align:center">[Ms. Maz: season-complete send-off line, e.g. what comes after surviving the season]</p>
         <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-          <button class="btn primary" style="background:var(--cobalt);border-color:var(--cobalt)" onclick="goCompSetup()">Host your own Competition <span class="arr">→</span></button>
+          <button class="btn primary" style="background:var(--cobalt);border-color:var(--cobalt)" onclick="goCompetition()">Host your own Competition <span class="arr">→</span></button>
           <button class="btn primary" style="background:var(--leaf);border-color:var(--leaf)" onclick="goCommunity()">Share your season with the Community <span class="arr">→</span></button>
         </div>
         <div style="margin-top:14px">
@@ -5431,7 +6412,7 @@ function renderHome(){
           <h3>Cooking Show <span class="serif-accent">Competition</span></h3>
           <p class="hub-tag">Seasoned Competitor</p>
           <p class="hub-desc">Take over Cooking Show by designing the challenge briefs and coming up with the concepts. Build your own season and invite friends to play with you in person or online.</p>
-          <button class="btn hub-btn" style="background:var(--cobalt);border-color:var(--cobalt);color:var(--cream)" onclick="goCompSetup()">Build a Competition</button>
+          <button class="btn hub-btn" style="background:var(--cobalt);border-color:var(--cobalt);color:var(--cream)" onclick="goCompetition()">Build a Competition</button>
         </div>
         <div class="hub-card hc-community">
           <div class="hub-logo">${MAST_LOGOS.csm}</div>
