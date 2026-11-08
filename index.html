@@ -881,6 +881,14 @@ body.comp .rc-crit-stars, body.comp .rc-total-pts{ color:var(--cobalt); }
 }
 .cf-icon{ display:inline-flex; opacity:.92; }
 .cf-name{ line-height:1.15; }
+/* Hub · The Game: the deck shown as real card faces, portrait like the table cards */
+.home-deck{ grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px 18px; margin-top:20px; max-width:760px; }
+.home-deck .concept-pair{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.home-card{ aspect-ratio:1/1; min-height:0; padding:10px 6px; gap:8px; font-size:14px; border-radius:12px; }
+.home-card svg{ width:44px; height:44px; }
+.home-card .cf-name.nm-long{ font-size:13px; }
+.home-card .cf-name.nm-xl{ font-size:11.5px; }
+@media(max-width:640px){ .home-deck{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px 10px; } .home-deck .concept-pair{ gap:6px; } .home-card{ font-size:12px; padding:10px 3px; gap:8px; } .home-card svg{ width:38px; height:38px; } .home-card .cf-name.nm-long, .home-card .cf-name.nm-xl{ font-size:10px; letter-spacing:-.01em; } }
 /* Competition concept coins — round tokens, grouped in pairs like the cards */
 .concept-coin-grid{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px 16px; margin-top:16px; }
 @media(max-width:820px){ .concept-coin-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
@@ -2198,6 +2206,10 @@ footer .big .serif-accent{color:var(--accent)}
 .home-doors .hub-card h3{ font-size:19px; }
 .home-doors .hub-card h3 .serif-accent{ font-size:20px; }
 .home-doors .hub-desc{ font-size:13px; line-height:1.45; }
+.home-doors .hub-vid{ margin-top:12px; width:100%; align-self:stretch; }
+.home-doors .hub-vid .vid-embed{ border-radius:10px; }
+.home-doors .hub-vid-ph{ aspect-ratio:16/9; }
+@media(max-width:600px){ .home-doors .hub-vid{ grid-column:1 / -1; margin-top:10px; } .home-doors .hub-vid:has(.hub-vid-ph){ display:none; } }
 .home-doors .hub-btn{ margin-top:10px; font-size:12px; letter-spacing:.06em; padding:12px 8px; white-space:nowrap; }
 @media(max-width:1020px){ .home-doors .hub-grid.hub-rooms{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
 /* phones: logo beside the words, so each door is a short row */
@@ -2959,13 +2971,17 @@ const CHALLENGES = [
    challenge briefs (never on custom Competitions).
    ============================================================ */
 const VIDEO_MAP = {
+  "hub-classroom":   "https://youtu.be/LETIPTdjcLw",   // Hub · Classroom card
+  "hub-competition": "https://youtu.be/iTL6JKn1MrU",   // Hub · Competition card
+  "hub-community":   "",                               // Hub · Community card
+  "hub-kitchen":     "",                               // Hub · Kitchen card
   /* ---- CS Classroom · Unit 1 · Smart Cookie ---- */
   "lesson-0-0": "https://youtube.com/shorts/_M9mwb1AQ-s?feature=share",   // Lesson 1 · "Swiss Kiss" PB Thumbprint Cookie
   "lesson-0-1": "",   // Lesson 2 · "Swiss Miss" Choco-Latte Cookie
   "lesson-0-2": "",   // Unit Test · "Swiss 'Wich" Oatmeal Fluffer Nutter
 
   /* ---- CS Classroom · Unit 2 · Chicken & Rice ---- */
-  "lesson-1-0": "",   // Lesson 1 · Halal-cart chicken & rice bowl
+  "lesson-1-0": "https://youtube.com/shorts/xY2kxNVw3ns?feature=share",   // Lesson 1 · Halal-cart chicken & rice bowl
   "lesson-1-1": "",   // Lesson 2 · Persian-style chicken & tahdig rice
   "lesson-1-2": "",   // Unit Test (lesson content in production)
 
@@ -3034,7 +3050,7 @@ const CSC_EPISODES = {
   },
   1: {
     ep:"02",
-    practice:{concept:"memory", story:"Proust contended that a simple madeleine could transport him to his grandmother\u2019s kitchen. Where does chicken and rice take you? Use this lesson to explore \u201cthe Proust effect\u201d by finding the dish that transports you to a remembrance of chicken and rice past."},
+    practice:{concept:"tradition", story:"Proust contended that a simple madeleine could transport him to his grandmother\u2019s kitchen. Where does chicken and rice take you? Use this lesson to explore \u201cthe Proust effect\u201d by finding the dish that transports you to a remembrance of chicken and rice past."},
     modelPull:{cook:["tradition"], burn:["surprise"], freeze:["elevation"]},
     levels:[
       {name:"Lesson 1 · Novice", brigade:"Line Cook", dish:"Halal-cart chicken & rice bowl, white sauce + pickled onions", runtime:"15 min",
@@ -7515,6 +7531,12 @@ function updateHomeResume(){
     </div>`;
 }
 
+/* Hub card video: the franchise's intro clip, or an in-production slot so the four buttons stay aligned */
+function hubVid(room){
+  const k="hub-"+room, id=videoFor(k);
+  return id ? `<div class="hub-vid">${videoEmbed(id, "Cooking Show "+room.charAt(0).toUpperCase()+room.slice(1), "", isShort(k))}</div>`
+            : `<div class="hub-vid"><div class="kc-ph hub-vid-ph"><span>Video</span><span class="kc-soon">in production</span></div></div>`;
+}
 function renderHome(){
   $("home-body").innerHTML = `
     <div id="home-resume"></div>
@@ -7526,6 +7548,7 @@ function renderHome(){
           <h3>Cooking Show <span class="serif-accent">Classroom</span></h3>
           <p class="hub-tag">Culinary Student</p>
           <p class="hub-desc">Follow units to view models, practice skills, and reflect on your learning. Designed for extended play following a 6-challenge art, this is where you can practice at your own pace and keep a Process Journal to chart your growth over time.</p>
+          ${hubVid("classroom")}
           <button class="btn hub-btn" style="background:var(--mustard);border-color:var(--mustard);color:var(--ink)" onclick="goClassroom()">Enter the Classroom</button>
         </div>
         <div class="hub-card hc-competition" onclick="if(!event.target.closest('button')) goCompV2()">
@@ -7533,6 +7556,7 @@ function renderHome(){
           <h3>Cooking Show <span class="serif-accent">Competition</span></h3>
           <p class="hub-tag">Seasoned Competitor</p>
           <p class="hub-desc">Take over Cooking Show by choosing the season theme and rolling the dice to create the challenge briefs. Build your own 3-challenge arc and invite friends to play with you in-person or online.</p>
+          ${hubVid("competition")}
           <button class="btn hub-btn" style="background:var(--cobalt);border-color:var(--cobalt);color:var(--cream)" onclick="goCompV2()">Build a Competition</button>
         </div>
         <div class="hub-card hc-community" onclick="if(!event.target.closest('button')) goCommunity()">
@@ -7540,6 +7564,7 @@ function renderHome(){
           <h3>Cooking Show <span class="serif-accent">Community</span></h3>
           <p class="hub-tag">Chef’s Table</p>
           <p class="hub-desc">Cook it, film it, and post it. Share your dish and your story in a supportive community of like-minded learners. Look to others for inspiration while on your Cooking Show journey.</p>
+          ${hubVid("community")}
           <button class="btn hub-btn" style="background:var(--red);border-color:var(--red);color:var(--cream)" onclick="goCommunity()">Join the Community</button>
         </div>
         <div class="hub-card hc-kitchen" onclick="if(!event.target.closest('button')) goKitchen()">
@@ -7547,6 +7572,7 @@ function renderHome(){
           <h3>Cooking Show <span class="serif-accent">Kitchen</span></h3>
           <p class="hub-tag">Our Kitchen and Beyond</p>
           <p class="hub-desc">Come in to see what’s cooking. Access all of our video and travel content.</p>
+          ${hubVid("kitchen")}
           <button class="btn hub-btn" style="background:var(--green);border-color:var(--green);color:var(--cream)" onclick="goKitchen()">Come into the Kitchen</button>
         </div>
       </div>
@@ -7574,9 +7600,9 @@ function renderHome(){
 
       <div class="game-block">
         <span class="kicker">The center of every season</span>
-        <h3 class="title" style="font-size:clamp(20px,3vw,28px)">Concept Cards</h3>
-        <p class="lede">These cards represent twelve abstract ideas, arranged into six dichotomous pairs, all designed to inspire a dish or help frame the story behind it. The concept becomes the lens through which you filter every decision you make for a challenge.</p>
-        <div class="conc-pairs" id="home-concepts"></div>
+        <h3 class="title" style="font-size:clamp(20px,3vw,28px)">Conceptual Framework</h3>
+        <p class="lede">This conceptual framework provides twelve abstract ideas, arranged into six dichotomous pairs, all designed to inspire a dish or help frame the story behind it. The concept becomes the lens through which you filter every decision you make for a challenge.</p>
+        <div class="concept-feature-grid home-deck" id="home-concepts"></div>
       </div>
 
     </div>
@@ -7591,9 +7617,16 @@ function renderHome(){
     </div>`;
   const hc = $("home-concepts");
   if(hc){
-    hc.innerHTML = CONCEPTS.map(c=>
-      `<div class="conc-pill"><span class="dot" style="background:${c.color}"></span><span class="nm">${esc(c.name)}</span></div>`
-    ).join("");
+    /* the full deck as card faces, one pair per group (CONCEPTS is ordered grounded pole first) */
+    let deck = "";
+    for(let n=0; n<CONCEPTS.length; n+=2){
+      deck += `<div class="concept-pair">${[CONCEPTS[n],CONCEPTS[n+1]].map(c=>
+        `<div class="cf-card home-card" style="background:${c.color};color:${c.fg}">
+          <span class="cf-icon">${doodle(c.id, c.fg, 56, c.color)}</span>
+          <span class="cf-name ${nmClass(c.name)}">${esc(c.name)}</span>
+        </div>`).join("")}</div>`;
+    }
+    hc.innerHTML = deck;
   }
 }
 
