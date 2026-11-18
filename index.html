@@ -345,15 +345,18 @@ textarea{resize:vertical;min-height:80px}
   font-family:var(--font-label);font-size:14px;letter-spacing:.26em;text-transform:uppercase;
   margin-bottom:14px;color:var(--ink);
 }
-.mini-deck{display:flex;flex-wrap:wrap;gap:10px}
+.mini-deck{display:grid;grid-template-columns:repeat(6,minmax(0,92px));gap:10px}
+@media(max-width:700px){ .mini-deck{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px} }
 .mini-card{
-  width:92px;border:1px solid var(--line);border-radius:10px;
+  min-width:0;border:1px solid var(--line);border-radius:10px;
   padding:10px 6px 8px;text-align:center;position:relative;
   background:var(--white);
 }
 .mini-card .nm{font-family:var(--font-label);font-size:clamp(9.5px,2.6vw,11px);letter-spacing:.03em;text-transform:uppercase;margin-top:5px;line-height:1.05;overflow-wrap:anywhere;hyphens:auto}
 .mini-card .st{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;margin-top:4px;color:inherit;opacity:.85}
 .mini-card{overflow:hidden}
+.mini-card .nm.nm-long, .mini-card .nm.nm-xl{font-size:8.4px;letter-spacing:0;overflow-wrap:normal;hyphens:manual}
+@media(max-width:700px){ .mini-card{padding:10px 3px 8px} .mini-card .nm{font-size:8.6px;letter-spacing:0;overflow-wrap:normal;hyphens:manual} .mini-card .nm.nm-long, .mini-card .nm.nm-xl{font-size:6.6px} }
 /* used cards become ghosts: concept color stays, faded under a cream veil */
 .mini-card.cooked, .mini-card.burned{ border-color:rgba(33,29,23,.32); }
 .mini-card.cooked::after, .mini-card.burned::after{
@@ -888,7 +891,7 @@ body.comp .rc-crit-stars, body.comp .rc-total-pts{ color:var(--cobalt); }
 .home-card svg{ width:44px; height:44px; }
 .home-card .cf-name.nm-long{ font-size:13px; }
 .home-card .cf-name.nm-xl{ font-size:11.5px; }
-@media(max-width:640px){ .home-deck{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px 10px; } .home-deck .concept-pair{ gap:6px; } .home-card{ font-size:12px; padding:10px 3px; gap:8px; } .home-card svg{ width:38px; height:38px; } .home-card .cf-name.nm-long, .home-card .cf-name.nm-xl{ font-size:10px; letter-spacing:-.01em; } }
+@media(max-width:640px){ .home-deck{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px 10px; } .home-deck .concept-pair{ gap:6px; } .home-card{ font-size:12px; padding:10px 3px; gap:8px; } .home-card svg{ width:38px; height:38px; } .home-card .cf-name.nm-long, .home-card .cf-name.nm-xl{ font-size:9px; letter-spacing:-.02em; } }
 /* Competition concept coins — round tokens, grouped in pairs like the cards */
 .concept-coin-grid{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px 16px; margin-top:16px; }
 @media(max-width:820px){ .concept-coin-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
@@ -1093,6 +1096,19 @@ body.comp .rc-crit-stars, body.comp .rc-total-pts{ color:var(--cobalt); }
   border:1px solid var(--line); border-radius:12px; overflow:hidden; background:var(--ink);
 }
 .vid-embed iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; }
+/* pop-out: a small button on every player, and the big window it opens */
+.vid-pop{ position:absolute; top:8px; right:8px; z-index:2; width:34px; height:34px; border-radius:50%; border:0; padding:0; background:rgba(31,30,27,.74); color:#FBF7EE; display:grid; place-items:center; cursor:pointer; transition:background .15s, transform .15s; }
+.vid-pop:hover, .vid-pop:focus-visible{ background:rgba(31,30,27,.94); transform:scale(1.06); }
+.vid-pop svg{ width:16px; height:16px; }
+.vlb{ position:fixed; inset:0; z-index:1100; display:none; align-items:center; justify-content:center; padding:16px; }
+.vlb.open{ display:flex; }
+.vlb-shade{ position:absolute; inset:0; background:rgba(20,19,17,.88); }
+.vlb-frame{ position:relative; width:min(92vw, calc(84vh * 16 / 9), 1280px); aspect-ratio:16/9; background:#000; border-radius:12px; overflow:hidden; box-shadow:0 24px 70px rgba(0,0,0,.55); }
+.vlb-frame.short{ width:auto; height:min(86vh, calc(92vw * 16 / 9)); aspect-ratio:9/16; }
+.vlb-frame iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; }
+.vlb-close{ position:absolute; top:max(12px, env(safe-area-inset-top)); right:12px; z-index:2; width:44px; height:44px; border-radius:50%; border:0; padding:0; background:rgba(251,247,238,.16); color:#FBF7EE; font-size:28px; line-height:1; cursor:pointer; }
+.vlb-close:hover, .vlb-close:focus-visible{ background:rgba(251,247,238,.3); }
+html.vlb-lock, html.vlb-lock body{ overflow:hidden; }
 .vid-embed.short{ aspect-ratio:9/16; max-width:300px; }
 .vid-inprod-chip{
   display:inline-block; font-family:var(--font-label); font-weight:800; font-size:11px;
@@ -1367,6 +1383,8 @@ body.comp footer .big .serif-accent{ color:var(--comp); }
 }
 .story-line b{ font-style:normal; font-family:var(--font-label); font-weight:800; font-size:11px; letter-spacing:.13em; text-transform:uppercase; color:var(--cobalt); }
 h2.title .story-line{ margin:6px 0 0; display:block; }
+.podium .story-line{ color:rgba(251,247,238,.78); margin:10px auto 6px; }   /* readable on the dark recap hero */
+.podium .story-line b{ color:var(--cream); }
 
 /* À la carte: the writing desk (brief written at the table) */
 .bw-desk{ margin-top:16px; max-width:560px; }
@@ -1620,6 +1638,7 @@ body.comp ::selection{ background:var(--cobalt); color:var(--cream); }
   display:block; font-family:Archivo,sans-serif; font-weight:800; font-size:12px;
   letter-spacing:.22em; text-transform:uppercase; color:var(--cobalt); margin-bottom:10px;
 }
+.comp-flag.cls-flag{ color:var(--mustard-deep); }   /* a Classroom build-your-own season */
 .comp-note{ color:var(--cobalt); font-weight:700; }
 .comp-grid{
   display:grid; grid-template-columns:repeat(2,minmax(0,1fr));
@@ -1831,6 +1850,31 @@ body.csm footer .big .serif-accent{ color:var(--red-dk); }
 .csm-steps{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:24px; }
 @media(max-width:760px){ .csm-steps{ grid-template-columns:1fr; } }
 /* ===== Community: share-your-cook form + season scaffold ===== */
+/* Community's game: roll the inspiration die, then pick one concept card, then share */
+.kg{ margin-top:30px; border-top:1px solid var(--line); padding-top:26px; }
+.kg-play{ display:grid; grid-template-columns:minmax(0,200px) minmax(0,1fr); gap:16px; margin-top:14px; }
+@media(max-width:760px){ .kg-play{ grid-template-columns:1fr; } }
+.kg-slot{ border:1px solid var(--line); border-radius:16px; padding:16px 14px; background:var(--white); display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center; min-width:0; }
+.kg-slot .cv2-order.kg-order{ font-size:11px; letter-spacing:.1em; text-transform:uppercase; font-weight:800; color:var(--red-dk); }
+.kg-def{ margin:0; font-size:12.5px; line-height:1.45; color:var(--ink-soft); font-style:italic; min-height:1.2em; }
+#kg-stage.kg-locked{ pointer-events:none; cursor:default; }
+.kg-deck{ width:100%; display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:8px; }
+@media(max-width:700px){ .kg-deck{ grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; } }
+.kg-deck .ccard{ width:100%; height:auto; aspect-ratio:3/4; }      /* the table's card, sized to the grid */
+.kg-deck .cback .monogram{ font-size:13px; width:42px; height:42px; border-width:1.5px; }
+.kg-deck .cfront{ padding:8px 4px; gap:6px; }
+.kg-deck .cfront .art svg{ width:34px; height:34px; }
+.kg-deck .cfront .nm{ font-size:12px; word-break:normal; overflow-wrap:normal; hyphens:manual; }
+.kg-deck .cfront .nm.nm-long, .kg-deck .cfront .nm.nm-xl{ font-size:9.5px; }
+@media(max-width:700px){ .kg-deck .cback .monogram{ font-size:10px; width:32px; height:32px; } .kg-deck .cfront .nm{ font-size:10px; } .kg-deck .cfront .nm.nm-long, .kg-deck .cfront .nm.nm-xl{ font-size:7.4px; } .kg-deck .cfront .art svg{ width:24px; height:24px; } }
+.kg-deck.is-waiting .ccard{ opacity:.35; cursor:default; }   /* roll first, then pick */
+.kg-deck.has-pick .ccard:not(.flipped){ opacity:.3; cursor:default; }
+.kg-deck .ccard.flipped .cfront{ box-shadow:0 0 0 3px var(--white), 0 0 0 5px var(--ink); }
+.kg-brief{ margin-top:16px; border:1px solid var(--line); border-radius:16px; padding:18px 20px; background:#F7F5EF; }
+.kg-k{ font-size:11.5px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--red-dk); }
+.kg-line{ margin:6px 0 14px; font-size:16px; line-height:1.5; color:var(--ink); }
+.kg-actions{ display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+.kg-go{ background:var(--red); border-color:var(--red); color:var(--cream); }
 .cook-share{ margin-top:30px; border-top:1px solid var(--line); padding-top:26px; }
 .cook-share-h{ font-family:var(--font-label); font-weight:400; font-size:clamp(22px,3.2vw,30px); margin:6px 0 8px; }
 .cook-form{ margin-top:14px; max-width:640px; }
@@ -1958,10 +2002,10 @@ body.csc footer .big .serif-accent{ color:var(--mustard-deep); }
    The 6-cook engine is shared with Competition (where someone wins, so scores stay).
    In a Classroom season (body.csc) every scoring surface is hidden; the reflection
    (Tasting Notes) stands in its place as the summative "test". */
-body.csc .scorebar{ display:none !important; }      /* running season points on the board */
+body.csc .scorebar .scorerow, body.csc .scorebar h3{ display:none !important; }  /* running season points on the board (its buttons stay) */
 body.csc .crit-row{ display:none !important; }      /* star-rating inputs on the eval screen */
 body.csc .rc-criteria{ display:none !important; }   /* per-card stars + total on the report */
-body.csc .recap-table{ display:none !important; }   /* cumulative points table */
+body.csc .recap-table .cpts{ display:none !important; }   /* per-dish points (the dish-by-dish record itself stays) */
 body.csc .cume-wrap{ display:none !important; }     /* by-criterion averages + sparklines */
 .csc-only{ display:none; }                          /* shown only inside a Classroom season */
 body.csc .csc-only{ display:block; }
@@ -2001,7 +2045,14 @@ footer .big .serif-accent{color:var(--accent)}
 .cv2-setup{ display:flex; flex-direction:column; gap:22px; }
 
 /* the die bar: three slots in a row, connected downward into the table */
-.cv2-diebar{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:16px; position:relative; }
+.cv2-chalbar{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:16px; }
+.cv2-chal{ display:flex; flex-direction:column; gap:6px; min-width:0; }
+.cv2-chal .cv2-own-name{ margin-top:0; }
+.cv2-chal .cv2-theme-line{ margin:0 2px; }
+.cv2-chal select:disabled, .cv2-chal input:disabled{ opacity:1; background:#F7F5EF; color:var(--ink); cursor:default; }
+@media(max-width:760px){ .cv2-chalbar{ grid-template-columns:1fr; } }
+.cv2-chance.is-locked{ opacity:.4; pointer-events:none; user-select:none; }   /* chance waits for control */
+.cv2-diebar{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:16px; position:relative; }
 @media(max-width:760px){ .cv2-diebar{ grid-template-columns:1fr; } }
 .cv2-slot{ border:1px solid var(--line); border-radius:16px; padding:16px 14px; background:var(--white); display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center; }
 .cv2-slot .cv2-order{ font-size:11px; letter-spacing:.1em; text-transform:uppercase; font-weight:800; color:var(--cobalt); }
@@ -2164,6 +2215,10 @@ footer .big .serif-accent{color:var(--accent)}
 .cv2-tool{ border:none; background:none; padding:2px 0; font:inherit; font-size:12.5px; font-weight:700; color:var(--cobalt); cursor:pointer; }
 .cv2-tool:hover{ text-decoration:underline; }
 .cv2-tool-select{ border:none; background:transparent; padding:2px 0; font:inherit; font-size:12.5px; font-weight:700; color:var(--cobalt); cursor:pointer; max-width:100%; }
+.cv2-ep-ctitle{ font-family:var(--font-head); font-size:18px; line-height:1.2; color:var(--ink); margin:2px 0 0; }
+.cv2-ep-cline{ margin:0; font-size:12.5px; line-height:1.45; color:var(--ink-soft); font-style:italic; }
+.cv2-bctitle{ font-family:var(--font-head); font-size:18px; line-height:1.2; color:var(--ink); }
+.cv2-bcline{ font-size:12.5px; line-height:1.45; color:var(--ink-soft); font-style:italic; }
 .cv2-ep-def{ margin:-2px 0 0; font-size:12.5px; line-height:1.45; color:var(--ink-soft); font-style:italic; }
 .cv2-ep-def:empty{ display:none; }
 .cv2-note{ width:100%; min-height:0; padding:7px 9px; border:1px solid var(--line); border-radius:8px; font:inherit;
@@ -2193,6 +2248,7 @@ footer .big .serif-accent{color:var(--accent)}
 .cv2-bcard .cv2-bconcept{ margin:2px 0; }
 .cv2-bcard .cv2-bbrief{ font-size:13.5px; color:var(--ink); line-height:1.45; }
 .cv2-bcard .cv2-bstate{ margin-top:auto; font-size:12px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; }
+#cv2b-title .cv2-bchip{ display:inline-block; padding:.04em .34em .08em; border-radius:.3em; }
 .cv2-bcard .cv2-bchip{ display:inline-block; padding:3px 10px; border-radius:999px; font-size:12px; font-weight:800; margin-right:5px; }
 .cv2-btype{ display:inline-block; margin-top:6px; padding:3px 10px; border:1px solid var(--cobalt); border-radius:999px; font-size:12px; font-weight:800; color:var(--cobalt); }
 /* home doors: compact so all four rooms (and their buttons) sit in the first screen.
@@ -2354,7 +2410,7 @@ body:not(.home) .masthead .sub{ margin-top:10px; font-size:13.5px; max-width:600
 
     <div class="room-concepts">
       <span class="kicker" style="color:var(--cobalt)">The concept die &middot; six pairs</span>
-      <div id="comp-concepts" class="concept-dice-grid"></div>
+      <div id="comp-landing-concepts" class="concept-dice-grid"></div>
     </div>
 
     <div class="room-concepts" style="margin-top:30px">
@@ -2369,7 +2425,7 @@ body:not(.home) .masthead .sub{ margin-top:10px; font-size:13.5px; max-width:600
         <p class="lede">[Ms. Maz: reality-show rules intro &mdash; two dice and a coin set your season. No deck, no cook/burn/freeze.]</p>
         <div class="def-grid">
           <div class="def-card"><span class="tag" style="background:var(--cobalt);color:var(--cream)">Concept die</span><h3>Roll your pair</h3><p>The six faces are the six antithetical pairs. One roll picks the pair your whole season explores. [Ms. Maz: reframe in your voice.]</p></div>
-          <div class="def-card"><span class="tag" style="background:var(--cobalt);color:var(--cream)">Challenge die</span><h3>Roll your inspiration</h3><p>Times, Places, People, Occasions, Ingredients, Flavors &mdash; one roll sets the inspiration that runs through the season. [Ms. Maz: reframe.]</p></div>
+          <div class="def-card"><span class="tag" style="background:var(--cobalt);color:var(--cream)">Inspiration die</span><h3>Roll your inspiration</h3><p>Times, Places, People, Occasions, Ingredients, Flavors &mdash; one roll sets the inspiration that runs through the season. [Ms. Maz: reframe.]</p></div>
           <div class="def-card"><span class="tag" style="background:var(--cobalt);color:var(--cream)">The coin</span><h3>Flip for the lead</h3><p>Heads or tails decides which pole of your pair leads first &mdash; or take the Host&rsquo;s Table and choose. [Ms. Maz: reframe.]</p></div>
         </div>
       </div>
@@ -2416,75 +2472,41 @@ body:not(.home) .masthead .sub{ margin-top:10px; font-size:13.5px; max-width:600
     <p class="lede">[Ms. Maz: intro for the dice builder — roll the two dice and flip the coin to set your season's tension, its challenge, and which side leads. Or override any of them and set your own. Then cook a three-episode arc with others.]</p>
 
     <div class="cv2-setup">
+      <!-- CONTROL FIRST: the three challenges are chosen before any die is rolled, and
+           lock once chance begins, so a challenge can never be tailored to its concept. -->
       <div>
-        <label class="field-label" for="cv2-theme">Season name</label>
-        <select id="cv2-theme" class="cv2-theme-select" onchange="cv2SetTheme(this.value)">
-          <option value="">Write your own</option>
-        </select>
-        <input type="text" id="cv2-name" class="ti cv2-own-name" placeholder="e.g. The Sunday Table Showdown" oninput="cv2RenderBriefHead()">
-        <p class="cv2-theme-line" id="cv2-theme-line" style="display:none"></p>
+        <div class="field-label">Choose your challenges <span class="opt-tag">before you roll</span></div>
+        <p class="field-hint">[Ms. Maz: one line on choosing the three challenges before the dice — control first, then chance.]</p>
+        <div class="cv2-chalbar">
+          <div class="cv2-chal">
+            <label class="cv2-mini-lbl" for="cv2-ep-theme-0">Episode 1</label>
+            <select class="cv2-theme-select" id="cv2-ep-theme-0" onchange="cv2SetEpTheme(0, this.value)"></select>
+            <input type="text" class="ti cv2-own-name" id="cv2-ep-town-0" maxlength="48" placeholder="Write your own challenge" style="display:none" oninput="cv2SetEpThemeOwn(0, this.value)">
+            <p class="cv2-theme-line" id="cv2-ep-pline-0" style="display:none"></p>
+          </div>
+          <div class="cv2-chal">
+            <label class="cv2-mini-lbl" for="cv2-ep-theme-1">Episode 2</label>
+            <select class="cv2-theme-select" id="cv2-ep-theme-1" onchange="cv2SetEpTheme(1, this.value)"></select>
+            <input type="text" class="ti cv2-own-name" id="cv2-ep-town-1" maxlength="48" placeholder="Write your own challenge" style="display:none" oninput="cv2SetEpThemeOwn(1, this.value)">
+            <p class="cv2-theme-line" id="cv2-ep-pline-1" style="display:none"></p>
+          </div>
+          <div class="cv2-chal">
+            <label class="cv2-mini-lbl" for="cv2-ep-theme-2">Finale</label>
+            <select class="cv2-theme-select" id="cv2-ep-theme-2" onchange="cv2SetEpTheme(2, this.value)"></select>
+            <input type="text" class="ti cv2-own-name" id="cv2-ep-town-2" maxlength="48" placeholder="Write your own challenge" style="display:none" oninput="cv2SetEpThemeOwn(2, this.value)">
+            <p class="cv2-theme-line" id="cv2-ep-pline-2" style="display:none"></p>
+          </div>
+        </div>
+        <p class="field-hint" id="cv2-chal-locked" style="display:none">[Ms. Maz: line shown once the dice are rolled — the challenges are locked.] <button type="button" class="cv2-tool" onclick="cv2StartOver()">Start over</button></p>
       </div>
 
-      <div>
+      <div class="cv2-chance">
         <div class="field-label">Set your season <span class="opt-tag">roll each, or choose your own</span></div>
         <p class="field-hint">Each roll drops into the season brief below. Roll all three to build your season — then make every line your own.</p>
         <div class="cv2-diebar">
-          <!-- 1 · INSPIRATION DIE (3D icon cube) -->
-          <div class="cv2-slot">
-            <span class="cv2-order">1 · Inspiration</span>
-            <!-- three inspiration dice, one per episode, rolled together -->
-            <div class="cv2-minidice">
-              <div class="cv2-mini">
-                <span class="cv2-mini-lbl">Ep 1</span>
-                <div class="cv2-mini-box cv2-tap" role="button" tabindex="0" aria-label="Re-roll this episode's inspiration" onclick="cv2RerollEpInspire(0)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><div class="cv2-cube-stage"><div class="cv2-cube-hop">
-                  <div class="cv2-cube cv2-cube-inspire" id="cv2-inspire-cube-0">
-                <div class="cv2-core"></div><div class="cv2-core cy"></div><div class="cv2-core cx"></div>
-                <div class="cface cface-front"></div>
-                <div class="cface cface-back"></div>
-                <div class="cface cface-right"></div>
-                <div class="cface cface-left"></div>
-                <div class="cface cface-top"></div>
-                <div class="cface cface-bottom"></div>
-                  </div>
-                </div></div></div>
-                <span class="cv2-mini-ro" id="cv2-inspire-ro-0">—</span>
-              </div>
-              <div class="cv2-mini">
-                <span class="cv2-mini-lbl">Ep 2</span>
-                <div class="cv2-mini-box cv2-tap" role="button" tabindex="0" aria-label="Re-roll this episode's inspiration" onclick="cv2RerollEpInspire(1)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><div class="cv2-cube-stage"><div class="cv2-cube-hop">
-                  <div class="cv2-cube cv2-cube-inspire" id="cv2-inspire-cube-1">
-                <div class="cv2-core"></div><div class="cv2-core cy"></div><div class="cv2-core cx"></div>
-                <div class="cface cface-front"></div>
-                <div class="cface cface-back"></div>
-                <div class="cface cface-right"></div>
-                <div class="cface cface-left"></div>
-                <div class="cface cface-top"></div>
-                <div class="cface cface-bottom"></div>
-                  </div>
-                </div></div></div>
-                <span class="cv2-mini-ro" id="cv2-inspire-ro-1">—</span>
-              </div>
-              <div class="cv2-mini">
-                <span class="cv2-mini-lbl">Finale</span>
-                <div class="cv2-mini-box cv2-tap" role="button" tabindex="0" aria-label="Re-roll this episode's inspiration" onclick="cv2RerollEpInspire(2)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><div class="cv2-cube-stage"><div class="cv2-cube-hop">
-                  <div class="cv2-cube cv2-cube-inspire" id="cv2-inspire-cube-2">
-                <div class="cv2-core"></div><div class="cv2-core cy"></div><div class="cv2-core cx"></div>
-                <div class="cface cface-front"></div>
-                <div class="cface cface-back"></div>
-                <div class="cface cface-right"></div>
-                <div class="cface cface-left"></div>
-                <div class="cface cface-top"></div>
-                <div class="cface cface-bottom"></div>
-                  </div>
-                </div></div></div>
-                <span class="cv2-mini-ro" id="cv2-inspire-ro-2">—</span>
-              </div>
-            </div>
-            <span class="cv2-ask">Who or what inspires each episode?</span>
-          </div>
           <!-- 2 · CONCEPT DIE (3D color cube) -->
           <div class="cv2-slot">
-            <span class="cv2-order">2 · Concept</span>
+            <span class="cv2-order">1 · Concept</span>
             <div class="cv2-cube-stage cv2-tap" role="button" tabindex="0" aria-label="Re-roll the concept die" onclick="cv2TapConcept()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
               <div class="cv2-cube-hop">
               <div class="cv2-cube cv2-cube-concept" id="cv2-concept-cube">
@@ -2503,7 +2525,7 @@ body:not(.home) .masthead .sub{ margin-top:10px; font-size:13.5px; max-width:600
           </div>
           <!-- 3 · COIN -->
           <div class="cv2-slot">
-            <span class="cv2-order">3 · Sequence</span>
+            <span class="cv2-order">2 · Sequence</span>
             <div class="cv2-coin-stage cv2-tap" id="cv2-coin-stage" role="button" tabindex="0" aria-label="Flip the coin again" onclick="cv2TapCoin()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
               <div class="cv2-coin-hop">
                 <div class="cv2-coin cv2-empty" id="cv2-coin"><span class="cv2-q">?</span></div>
@@ -2515,21 +2537,18 @@ body:not(.home) .masthead .sub{ margin-top:10px; font-size:13.5px; max-width:600
         </div>
         <div class="cv2-rollbar">
           <button class="btn primary cv2-roll-all" id="cv2-roll-all" onclick="cv2RollSeason()">Roll the season</button>
-          <span class="cv2-roll-hint">Tap any die or the coin to roll it again.</span>
+          <span class="cv2-roll-hint" id="cv2-roll-hint">Tap any die or the coin to roll it again.</span>
         </div>
       </div>
 
       <!-- THE SEASON BRIEF — a header (name, tagline, dice, premise) and one card per
            episode. The dice write every line; the player edits only by choice (✎ Edit). -->
-      <div>
+      <div class="cv2-chance">
         <div class="field-label">The season brief</div>
         <p class="field-hint">The dice fill this in. Every line is a suggestion — tap any line to make it your own.</p>
         <div class="cv2-brief" id="cv2-brief">
           <div class="cv2-bhead">
-            <div class="cv2-bname is-empty" id="cv2-bname">Your season</div>
-            <p class="cv2-btag" id="cv2-btag" style="display:none"></p>
             <dl class="cv2-bfacts">
-              <div class="cv2-bfact"><dt>Inspirations</dt><dd id="cv2-tag-inspire"><span class="cv2-cell-empty">—</span></dd></div>
               <div class="cv2-bfact"><dt>Concepts</dt><dd>
                 <span id="cv2-tag-concept"><span class="cv2-cell-empty">—</span></span>
                 <span class="cv2-fact-tools">
@@ -2541,38 +2560,35 @@ body:not(.home) .masthead .sub{ margin-top:10px; font-size:13.5px; max-width:600
           <div class="cv2-eps">
             <div class="cv2-ep" id="cv2-ep-0">
               <div class="cv2-ep-top"><span class="cv2-ep-num">Episode 1</span><span class="cv2-ep-chips" id="cv2-cell-concept-0"><span class="cv2-cell-empty">—</span></span></div>
+              <div class="cv2-ep-ctitle" id="cv2-ep-ctitle-0" style="display:none"></div>
+              <p class="cv2-ep-cline" id="cv2-ep-cline-0" style="display:none"></p>
               <textarea id="cv2-brief-0" class="cv2-line" rows="1" placeholder="—" oninput="CV2.epBriefs[0]=this.value; CV2.epTouched[0]=true; cv2FitTA(this);"></textarea>
-              <p class="cv2-ep-def" id="cv2-ep-def-0"></p>
               <div class="cv2-ep-tools">
                 <button type="button" class="cv2-tool" onclick="cv2EditLine('cv2-brief-0')">✎ Edit</button>
                 <button type="button" class="cv2-tool" id="cv2-note-btn-0" onclick="cv2ToggleNote(0)">+ Note</button>
-                <select class="cv2-tool-select" id="cv2-ep-insp-0" onchange="cv2SetEpInspire(0, this.value)" aria-label="Change this episode's inspiration"></select>
               </div>
-              <input type="text" class="cv2-ep-own" id="cv2-ep-own-0" maxlength="28" placeholder="Write your own inspiration" style="display:none" oninput="cv2SetEpCustom(0, this.value)">
               <textarea id="cv2-notes-0" class="cv2-note" rows="2" placeholder="optional…" style="display:none" oninput="CV2.epNotes[0]=this.value; cv2FitTA(this);"></textarea>
             </div>
             <div class="cv2-ep" id="cv2-ep-1">
               <div class="cv2-ep-top"><span class="cv2-ep-num">Episode 2</span><span class="cv2-ep-chips" id="cv2-cell-concept-1"><span class="cv2-cell-empty">—</span></span></div>
+              <div class="cv2-ep-ctitle" id="cv2-ep-ctitle-1" style="display:none"></div>
+              <p class="cv2-ep-cline" id="cv2-ep-cline-1" style="display:none"></p>
               <textarea id="cv2-brief-1" class="cv2-line" rows="1" placeholder="—" oninput="CV2.epBriefs[1]=this.value; CV2.epTouched[1]=true; cv2FitTA(this);"></textarea>
-              <p class="cv2-ep-def" id="cv2-ep-def-1"></p>
               <div class="cv2-ep-tools">
                 <button type="button" class="cv2-tool" onclick="cv2EditLine('cv2-brief-1')">✎ Edit</button>
                 <button type="button" class="cv2-tool" id="cv2-note-btn-1" onclick="cv2ToggleNote(1)">+ Note</button>
-                <select class="cv2-tool-select" id="cv2-ep-insp-1" onchange="cv2SetEpInspire(1, this.value)" aria-label="Change this episode's inspiration"></select>
               </div>
-              <input type="text" class="cv2-ep-own" id="cv2-ep-own-1" maxlength="28" placeholder="Write your own inspiration" style="display:none" oninput="cv2SetEpCustom(1, this.value)">
               <textarea id="cv2-notes-1" class="cv2-note" rows="2" placeholder="optional…" style="display:none" oninput="CV2.epNotes[1]=this.value; cv2FitTA(this);"></textarea>
             </div>
             <div class="cv2-ep" id="cv2-ep-2">
               <div class="cv2-ep-top"><span class="cv2-ep-num">Finale</span><span class="cv2-ep-chips" id="cv2-cell-concept-2"><span class="cv2-cell-empty">—</span></span></div>
+              <div class="cv2-ep-ctitle" id="cv2-ep-ctitle-2" style="display:none"></div>
+              <p class="cv2-ep-cline" id="cv2-ep-cline-2" style="display:none"></p>
               <textarea id="cv2-brief-2" class="cv2-line" rows="1" placeholder="—" oninput="CV2.epBriefs[2]=this.value; CV2.epTouched[2]=true; cv2FitTA(this);"></textarea>
-              <p class="cv2-ep-def" id="cv2-ep-def-2"></p>
               <div class="cv2-ep-tools">
                 <button type="button" class="cv2-tool" onclick="cv2EditLine('cv2-brief-2')">✎ Edit</button>
                 <button type="button" class="cv2-tool" id="cv2-note-btn-2" onclick="cv2ToggleNote(2)">+ Note</button>
-                <select class="cv2-tool-select" id="cv2-ep-insp-2" onchange="cv2SetEpInspire(2, this.value)" aria-label="Change this episode's inspiration"></select>
               </div>
-              <input type="text" class="cv2-ep-own" id="cv2-ep-own-2" maxlength="28" placeholder="Write your own inspiration" style="display:none" oninput="cv2SetEpCustom(2, this.value)">
               <textarea id="cv2-notes-2" class="cv2-note" rows="2" placeholder="optional…" style="display:none" oninput="CV2.epNotes[2]=this.value; cv2FitTA(this);"></textarea>
             </div>
           </div>
@@ -2598,6 +2614,7 @@ body:not(.home) .masthead .sub{ margin-top:10px; font-size:13.5px; max-width:600
     <h2 class="title" id="cv2b-title">Your <span class="serif-accent comp-accent">three episodes</span></h2>
     <p class="lede" id="cv2b-lede"></p>
     <div class="cv2-board-eps" id="cv2b-eps"></div>
+    <div id="cv2b-scores"></div>
   </div>
 </section>
 
@@ -2676,7 +2693,7 @@ body:not(.home) .masthead .sub{ margin-top:10px; font-size:13.5px; max-width:600
 <section class="screen" id="screen-setup">
   <div class="topbar">
     <span class="crumb">Season setup</span>
-    <button class="btn ghost small" onclick="goClassroom()">← Back</button>
+    <button class="btn ghost small" onclick="setupBack()">← Back</button>
   </div>
   <div class="panel">
     <h2 class="title">Set the <span class="serif-accent">table</span></h2>
@@ -3014,8 +3031,47 @@ function videoFor(key){
 /* YouTube Shorts are vertical, so a Shorts link gets a 9:16 frame instead of 16:9. */
 function isShort(key){ return /shorts\//.test(VIDEO_MAP[key] || ""); }
 
+/* ---- Pop-out video: any video can open in a big window over the page ----
+   Inline players carry a pop-out button; Kitchen thumbnails open here when tapped.
+   Popping out reloads the small player so only the big one plays. Esc, the ×, or a
+   tap outside the frame closes it; changing screens closes it too. */
+let VLB_OPENER = null;
+function openVideoBox(id, short, opener){
+  const inline = opener && opener.closest ? opener.closest(".vid-embed") : null;
+  const fr = inline ? inline.querySelector("iframe") : null;
+  if(fr) fr.src = fr.src.replace("autoplay=1","autoplay=0");   // stop the small player
+  const title = (opener && opener.dataset && opener.dataset.title) || (fr && fr.title) || "Video";
+  let box = $("vlb");
+  if(!box){
+    box = document.createElement("div"); box.id = "vlb"; box.className = "vlb";
+    box.setAttribute("role","dialog"); box.setAttribute("aria-modal","true");
+    box.innerHTML = `<div class="vlb-shade" onclick="closeVideoBox()"></div>
+      <button type="button" class="vlb-close" aria-label="Close the video" onclick="closeVideoBox()">×</button>
+      <div class="vlb-frame" id="vlb-frame"></div>`;
+    document.body.appendChild(box);
+  }
+  const f = $("vlb-frame");
+  f.classList.toggle("short", !!short);
+  f.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&playsinline=1" title="${esc(title)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
+  box.setAttribute("aria-label", title);
+  VLB_OPENER = opener || null;
+  box.classList.add("open");
+  document.documentElement.classList.add("vlb-lock");
+  box.querySelector(".vlb-close").focus();
+}
+function closeVideoBox(){
+  const box = $("vlb");
+  if(!box || !box.classList.contains("open")) return;
+  box.classList.remove("open");
+  $("vlb-frame").innerHTML = "";                       // stops playback
+  document.documentElement.classList.remove("vlb-lock");
+  if(VLB_OPENER && VLB_OPENER.isConnected && VLB_OPENER.focus) VLB_OPENER.focus();
+  VLB_OPENER = null;
+}
+document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeVideoBox(); });
+
 function videoEmbed(id, title, style, short){
-  return `<div class="vid-embed${short ? " short" : ""}"${style ? ` style="${style}"` : ""}><iframe src="https://www.youtube-nocookie.com/embed/${id}" title="${esc(title)}" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe></div>`;
+  return `<div class="vid-embed${short ? " short" : ""}"${style ? ` style="${style}"` : ""}><iframe src="https://www.youtube-nocookie.com/embed/${id}" title="${esc(title)}" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe><button type="button" class="vid-pop" data-title="${esc(title)}" aria-label="Pop out the video" title="Pop out" onclick="openVideoBox('${id}',${short?1:0},this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>`;
 }
 
 const CSC_EPISODES = {
@@ -3153,8 +3209,9 @@ const SSC_ICON = {
 let classroomReturn = "title";
 
 function goClassroom(focusCh){
-  classroomReturn = (S && document.getElementById("screen-board")) && S ? "board" : "title";
-  if(S) classroomReturn = "board";
+  // Back returns to the season board only for a Classroom season; a Competition
+  // in progress has its own room, so the Classroom's Back goes home instead.
+  classroomReturn = (S && !S.v2 && !isComp() && S.deck) ? "board" : "title";
   // A numeric arg opens that unit's own page; otherwise show the season landing.
   if(typeof focusCh === "number" && CSC_EPISODES[focusCh]){
     goClassroomUnit(focusCh);
@@ -3166,7 +3223,7 @@ function goClassroom(focusCh){
   hydrateMedia();
 }
 function leaveClassroom(){
-  if(classroomReturn==="board" && S){ renderBoard(); show("board"); }
+  if(classroomReturn==="board" && S && !S.v2 && S.deck){ renderBoard(); show("board"); }
   else show("home");
 }
 
@@ -3186,7 +3243,7 @@ function takeTest(i, origin){
     names = (raw && raw.trim()) ? raw.split(",").map(s=>s.trim()).filter(Boolean) : ["Chef"];
     if(!names.length) names = ["Chef"];
   }
-  PENDING_CUSTOM = null;
+  PENDING_CUSTOM = null; PENDING_COMPV2 = null;
   S = freshSeason(names, true, null);
   S.testRun = i;
   const ep = CSC_EPISODES[i];
@@ -3321,7 +3378,7 @@ function renderClassroom(){
         <p class="tw-season-lede">Practice through the units of study, test yourself in the challenges, and reflect on your learning all along the way.</p>
         <div class="tw-season-actions">
           <button class="btn primary" onclick="startClassicSetup()">Cook the whole season start-to-finish <span class="arr">&rarr;</span></button>
-          ${load() ? `<button class="btn ghost small" onclick="resumeSeason()">Resume season</button>` : ""}
+          ${(()=>{ const sv=load(); return (sv && !sv.v2 && seasonProduct(sv)==="classroom") ? `<button class="btn ghost small" onclick="resumeSeason()">Resume season</button>` : ""; })()}
           <button class="btn ghost small" onclick="importBackupPrompt()">Resume from a file</button>
           <button class="btn ghost small" onclick="goJournal()">&#128211; Process journal</button>
         </div>
@@ -4235,7 +4292,7 @@ function journalArchiveScorecard(){
 }
 
 let SETUP_MODE = "solo";
-function startClassicSetup(){ PENDING_CUSTOM = null; SETUP_MODE = "solo"; goSetup(); }
+function startClassicSetup(){ PENDING_CUSTOM = null; PENDING_COMPV2 = null; SETUP_MODE = "solo"; goSetup(); }
 
 /* ============================================================================
    KITCHEN DIY — "Build your own season" (6 units)
@@ -4268,7 +4325,7 @@ function goKitchenBuild(){
 function kbFillClassic(){ CONCEPTS.forEach((c,i)=>{ const el=$("kb-c"+i); if(el) el.value = c.name; }); }
 function kbClear(){ CONCEPTS.forEach((c,i)=>{ const el=$("kb-c"+i); if(el) el.value = ""; }); }
 function kitchenBuildContinue(){
-  const name = ($("kb-name") ? $("kb-name").value.trim() : "") || "My Kitchen Season";
+  const name = ($("kb-name") ? $("kb-name").value.trim() : "") || "My Classroom Season";
   const concepts = CONCEPTS.map((c,i)=>{
     const v = ($("kb-c"+i) ? $("kb-c"+i).value : "").trim();
     return {id:"cc"+i, name: v || c.name, color:c.color, fg:c.fg, dood:c.id};
@@ -4290,6 +4347,7 @@ function kitchenBuildContinue(){
     name, concepts, challenges,
     story: storyTitle ? { title: storyTitle, line: storyLine } : null
   };
+  PENDING_COMPV2 = null;
   SETUP_MODE = "solo";
   goSetup();
 }
@@ -4305,7 +4363,7 @@ function kitchenBuildContinue(){
    ========================================================================== */
 function goCompetition(){ renderCompetition(); show("complanding"); setRoute("competition"); }
 function renderCompetition(){
-  const el = $("comp-concepts");
+  const el = $("comp-landing-concepts");
   if(el) el.innerHTML = conceptDice();
   const ins = $("comp-inspiration");
   if(ins) ins.innerHTML = inspirationDice();
@@ -4451,6 +4509,12 @@ function cv2FinaleBrief(typeId, leadId, otherId, custom, themeId){
   const n = cv2InspNoun(typeId, custom);
   return own || `Cook ${cv2CapsConcepts(CV2_TENSION[key] || "a dish", [leadId, otherId])}, and let it tell the story of ${n.a} of your choosing.`;
 }
+// Competition briefs carry no inspiration (the die moved to Community's game): each
+// episode's challenge gives it its subject; the concept lens gives it its angle.
+function cv2CompBrief(conceptId){ return `Cook ${cv2CapsConcepts(CV2_LENS[conceptId] || "a dish", [conceptId])}.`; }
+function cv2CompFinaleBrief(leadId, otherId){
+  return `Cook ${cv2CapsConcepts(CV2_TENSION[leadId+">"+otherId] || "a dish", [leadId, otherId])}.`;
+}
 // Fallbacks for seasons built without table-resolved briefs (same engine).
 function cv2SuggestBrief(typeId, conceptId, custom, themeId){ return cv2EpisodeBrief(typeId, conceptId, custom, themeId); }
 function cv2SuggestFinaleBrief(typeId, leadId, otherId, custom, themeId){ return cv2FinaleBrief(typeId, leadId, otherId, custom, themeId); }
@@ -4582,13 +4646,62 @@ let CV2 = {
   lead:null,                          // coin: "deep"|"light"
   seasonBrief:null, seasonBriefTouched:false,
   epBriefs:[null,null,null], epTouched:[false,false,false],
-  epNotes:["","",""]
+  epNotes:["","",""],
+  epTheme:[null,null,null], epThemeOwn:["","",""]   // a challenge per episode: a theme id, or the player's own title
 };
+
+/* ---- A challenge per episode (Picnic Basket, The Breakup Bowl, Desk Lunch…) ----
+   Each episode picks its own from the theme list, or writes one. Optional: an
+   episode with none is simply titled by its number. The season itself has no name;
+   it is known by its concept pair. */
+function cv2EpChallenge(i){
+  const t = cv2Theme(CV2.epTheme[i]);
+  if(t) return { id:t.id, title:t.title, line:t.line };
+  const own = (CV2.epThemeOwn[i]||"").trim();
+  return own ? { id:null, title:own, line:"" } : null;
+}
+function cv2ChallengesSet(){ return [0,1,2].every(i=>cv2EpChallenge(i)); }
+function cv2ChanceStarted(){
+  return CV2_ROLLING || CV2_SEASON_ROLLING || CV2.pairIndex!=null || !!CV2.lead || [0,1,2].some(i=>CV2.insp[i]||CV2.custom[i]);
+}
+/* Control first, then chance: the dice, coin and brief stay shut until all three
+   challenges are chosen; the moment anything is rolled or set, the challenges lock. */
+function cv2UpdateLocks(){
+  const set=cv2ChallengesSet(), started=cv2ChanceStarted();
+  document.querySelectorAll("#screen-compv2 .cv2-chance").forEach(el=>{
+    el.classList.toggle("is-locked", !set);
+    if(!set) el.setAttribute("inert",""); else el.removeAttribute("inert");
+  });
+  [0,1,2].forEach(i=>{ ["cv2-ep-theme-","cv2-ep-town-"].forEach(k=>{ const el=$(k+i); if(el) el.disabled=started; }); });
+  const lk=$("cv2-chal-locked"); if(lk) lk.style.display = started ? "" : "none";
+  const rh=$("cv2-roll-hint"); if(rh) rh.textContent = set ? "Tap any die or the coin to roll it again." : "Choose all three challenges to roll.";
+}
+function cv2StartOver(){ goCompV2(); }
+function cv2RenderEpChallenge(i){
+  const pl=$("cv2-ep-pline-"+i), pc=cv2EpChallenge(i);
+  if(pl){ pl.textContent = pc && pc.line ? pc.line : ""; pl.style.display = (pc && pc.line) ? "" : "none"; }
+  const c = cv2EpChallenge(i), ti=$("cv2-ep-ctitle-"+i), li=$("cv2-ep-cline-"+i);
+  if(ti){ ti.textContent = c ? c.title : ""; ti.style.display = c ? "" : "none"; }
+  if(li){ li.textContent = c && c.line ? c.line : ""; li.style.display = (c && c.line) ? "" : "none"; }
+}
+function cv2SetEpTheme(i, v){
+  if(cv2ChanceStarted()){ cv2UpdateLocks(); return; }   // locked once chance begins
+  const own=$("cv2-ep-town-"+i);
+  if(v==="__own"){ CV2.epTheme[i]=null; if(own){ own.style.display=""; own.focus(); } }
+  else { CV2.epTheme[i] = cv2Theme(v) ? v : null; CV2.epThemeOwn[i]=""; if(own){ own.value=""; own.style.display="none"; } }
+  cv2RenderEpChallenge(i); cv2UpdateLocks();
+}
+function cv2SetEpThemeOwn(i, v){ if(cv2ChanceStarted()) return; CV2.epThemeOwn[i]=v; cv2RenderEpChallenge(i); cv2UpdateLocks(); }
 
 function goCompV2(){
   CV2 = { themeId:null, insp:[null,null,null], custom:["","",""], pairIndex:null, lead:null,
     seasonBrief:null, seasonBriefTouched:false,
-    epBriefs:[null,null,null], epTouched:[false,false,false], epNotes:["","",""] };
+    epBriefs:[null,null,null], epTouched:[false,false,false], epNotes:["","",""],
+    epTheme:[null,null,null], epThemeOwn:["","",""] };
+  [0,1,2].forEach(i=>{ const ts=$("cv2-ep-theme-"+i);
+    if(ts){ ts.innerHTML='<option value="">Choose a challenge…</option>'+CV2_SEASON_THEMES.map(t=>`<option value="${t.id}">${esc(t.title)}</option>`).join("")+'<option value="__own">Write your own…</option>'; ts.value=""; }
+    const to=$("cv2-ep-town-"+i); if(to){ to.value=""; to.style.display="none"; }
+    cv2RenderEpChallenge(i); });
   // the brief's pair picker (all six pairs) — usable before or after rolling
   const cSel=$("cv2-concept-select");
   if(cSel){ cSel.innerHTML='<option value="" disabled>Pair: choose…</option>'+CV2_PAIRS().map(p=>`<option value="${p.pairIndex}">Pair: ${esc(p.deep.name)} &amp; ${esc(p.light.name)}</option>`).join(""); cSel.value=""; }
@@ -4614,6 +4727,7 @@ function goCompV2(){
   if($("cv2-tag-inspire")) $("cv2-tag-inspire").innerHTML='<span class="cv2-cell-empty">—</span>';
   if($("cv2-tag-concept")) $("cv2-tag-concept").innerHTML='<span class="cv2-cell-empty">—</span>';
   cv2UpdateGate();
+  CV2_ROLLING = false; cv2UpdateLocks();
   show("compv2");
   setRoute("competition/build");
 }
@@ -4743,10 +4857,12 @@ const CV2_REVEAL_PAUSE = 250;   // breath between reveals
 const CV2_INSPIRE_STAGGER = 700; // gap between throwing each inspiration die, so they land one at a time
 function cv2RollSeason(){
   if(CV2_ROLLING || CV2_SEASON_ROLLING) return;
+  if(!cv2ChallengesSet()) return;     // control first
   CV2_SEASON_ROLLING = true;
+  cv2UpdateLocks();                   // …then chance: the challenges lock as the dice leave the hand
   const btn=$("cv2-roll-all"); if(btn) btn.disabled=true;
   const done=()=>{ CV2_SEASON_ROLLING=false; if(btn) btn.disabled=false; };
-  cv2DoRollInspire(()=> setTimeout(()=> cv2DoRollConcept(()=> setTimeout(()=> cv2DoFlip(done), CV2_REVEAL_PAUSE)), CV2_REVEAL_PAUSE));
+  cv2DoRollConcept(()=> setTimeout(()=> cv2DoFlip(done), CV2_REVEAL_PAUSE));   // the inspiration die now lives in Community
 }
 
 // ----- 1 · inspiration dice (one per episode) -----
@@ -4792,7 +4908,7 @@ function cv2RenderInspireDice(){
   [0,1,2].forEach(i=>{
     const cube=$("cv2-inspire-cube-"+i), ro=$("cv2-inspire-ro-"+i), sel=$("cv2-ep-insp-"+i), own=$("cv2-ep-own-"+i);
     const id=CV2.insp[i], t=cv2Type(id);
-    if(own && own.style.display!=="none"){ if(sel) sel.value="__own"; if(ro) ro.textContent=CV2.custom[i]||"—"; return; }
+    if(own && own.style.display!=="none"){ if(sel) sel.value="__own"; if(ro) ro.textContent=CV2.custom[i]||(t ? t.label : "—"); return; }
     if(cube && id){ cube.classList.remove("cv2-empty-cube"); cv2PaintInspireCube(cube);
       const f=CV2_INSPIRE_FACE_IDS.indexOf(id);
       if(f>=0 && !CV2_ROLLING){ cube.style.transition="transform .5s ease"; cube.style.transform=cv2FaceTransform(f); cv2ShadeCube(cube, f); } }
@@ -4918,11 +5034,11 @@ function cv2RenderCoin(animate){
 }
 
 // ----- fill the table as dice land -----
-function cv2AfterChange(){ cv2FillTable(); cv2UpdateGate(); }
+function cv2AfterChange(){ cv2FillTable(); cv2UpdateGate(); cv2UpdateLocks(); }
 function cv2SetBar(i, v){ const e=$("cv2-ep-"+i); if(e) e.style.setProperty("--bar", v); }
 // Grow a brief box to fit its text so long finales never clip.
 function cv2FitTA(el){ if(!el) return; if(!el.value){ el.style.height=""; return; } el.style.height="0px"; el.style.height=(el.scrollHeight+2)+"px"; }
-function cv2Ready(){ return [0,1,2].every(i=>CV2.custom[i]||CV2.insp[i]) && CV2.pairIndex!=null && CV2.lead; }
+function cv2Ready(){ return cv2ChallengesSet() && CV2.pairIndex!=null && CV2.lead; }
 
 function cv2FillTable(){
   const chip=(c)=>`<span class="cv2-chip" style="background:${c.color};color:${c.fg}">${esc(c.name)}</span>`;
@@ -4973,10 +5089,7 @@ function cv2FillTable(){
     const p=cv2PairByIndex(CV2.pairIndex);
     const leadId=(CV2.lead==="light"?p.light:p.deep).id;
     const otherId=(CV2.lead==="light"?p.deep:p.light).id;
-    const th=CV2.themeId, i0=cv2EpInsp(0), i1=cv2EpInsp(1), i2=cv2EpInsp(2);
-    const b0=cv2EpisodeBrief(i0.typeId, leadId, i0.custom, th);
-    const b1=cv2EpisodeBrief(i1.typeId, otherId, i1.custom, th);
-    const b2=cv2FinaleBrief(i2.typeId, leadId, otherId, i2.custom, th);
+    const b0=cv2CompBrief(leadId), b1=cv2CompBrief(otherId), b2=cv2CompFinaleBrief(leadId, otherId);
     [b0,b1,b2].forEach((b,i)=>{ if(!CV2.epTouched[i]){ CV2.epBriefs[i]=b; if($("cv2-brief-"+i)) $("cv2-brief-"+i).value=b; } });
     ["cv2-brief-0","cv2-brief-1","cv2-brief-2"].forEach(id=>cv2FitTA($(id)));
   }
@@ -4993,27 +5106,29 @@ function cv2Flash(msg){ const hint=$("cv2-gate-hint"); if(hint){ hint.textConten
 
 function cv2Continue(){
   if(!cv2Ready()) return;
-  const theme=cv2Theme(CV2.themeId);
-  const name=theme ? theme.title : (($("cv2-name")?$("cv2-name").value.trim():"")||"My Competition");
-  // the season line on the board is the theme's tagline (the premise sentence is retired)
-  const seasonBrief = theme ? theme.line : "";
+  // No season name: a season is known by its concept pair. Challenges live on the episodes.
+  const theme=null;
+  const pr=cv2PairByIndex(CV2.pairIndex);
+  const name=pr.deep.name+" ↔ "+pr.light.name;
+  const seasonBrief = "";
   const epBriefs=[0,1,2].map(i=> ($("cv2-brief-"+i)?$("cv2-brief-"+i).value.trim():"") || CV2.epBriefs[i] || "");
   const epNotes=[0,1,2].map(i=> $("cv2-notes-"+i)?$("cv2-notes-"+i).value.trim():"" );
   const cfg={
     name,
-    story: {title:name, line:seasonBrief}, // season name + tagline ride along to the board
+    story: null,
     seasonBrief,
     pairIndex: CV2.pairIndex,
-    inspirations: [0,1,2].map(cv2EpInsp),
+    inspirations: [0,1,2].map(()=>({typeId:null, custom:null})),   // none: the inspiration die is Community's now
     themeId: CV2.themeId || null,
     lead: CV2.lead,
-    episodes: epBriefs.map((b,i)=> ({brief:b, notes:epNotes[i]}))
+    episodes: epBriefs.map((b,i)=> ({brief:b, notes:epNotes[i], challenge:cv2EpChallenge(i)}))
   };
   PENDING_COMPV2 = buildCompV2Season(cfg);
   // carry the season brief + notes onto the built season
   PENDING_COMPV2.seasonBrief = seasonBrief;
   PENDING_COMPV2.theme = theme ? {id:theme.id, title:theme.title, line:theme.line} : null;
-  PENDING_COMPV2.episodes.forEach((e,i)=>{ e.notes = epNotes[i]||""; });
+  PENDING_COMPV2.episodes.forEach((e,i)=>{ e.notes = epNotes[i]||""; e.challenge = cv2EpChallenge(i); });
+  PENDING_CUSTOM = null;
   SETUP_MODE = "multi";
   goSetup();
 }
@@ -5031,18 +5146,20 @@ function cv2EpUnlocked(i){
 }
 function renderCompV2Board(){
   if(!S || !S.v2) return;
+  cv2Adapt(S);
   const p = S.pair;
   // header
   const lead = S.lead==="light" ? p.light : p.deep;
   const other = S.lead==="light" ? p.deep : p.light;
-  if($("cv2b-crumb")) $("cv2b-crumb").textContent = "Cooking Show Competition · " + (S.name||"Your season");
+  // seasons named by their pair don't repeat it in the crumb (the title already shows it)
+  if($("cv2b-crumb")) $("cv2b-crumb").textContent = "Cooking Show Competition" + (S.story && S.story.title ? " · " + S.story.title : "");
   if($("cv2b-kick")) $("cv2b-kick").textContent = S.story && S.story.title ? ("✦ " + S.story.title) : "The season";
   const chipH = (c)=>`<span class="cv2-bchip" style="background:${c.color};color:${c.fg}">${esc(c.name)}</span>`;
   if($("cv2b-title")) $("cv2b-title").innerHTML = `${chipH(p.deep)}<span style="opacity:.5;font-weight:700"> ↔ </span>${chipH(p.light)}`;
   const doneCount = [0,1,2].filter(i=>S.results && S.results[i] && S.results[i].done).length;
   let lede = "";
   if(S.story && S.story.line) lede += esc(S.story.line) + " · ";
-  lede += `Inspirations: <b>${esc(S.challengeLabel||"")}</b>. `;
+  if(S.challengeLabel) lede += `Inspirations: <b>${esc(S.challengeLabel)}</b>. `;   // seasons rolled before the die moved
   lede += doneCount>=3 ? "Season complete — take a bow." : (S.lead ? `${esc(lead.name)} leads; ${esc(other.name)} answers.` : "");
   if($("cv2b-lede")) $("cv2b-lede").innerHTML = lede;
 
@@ -5054,7 +5171,7 @@ function renderCompV2Board(){
     const roleLabel = e.role==="lead" ? "Opens the season" : e.role==="counter" ? "Answers back" : "Holds both";
     const noLabel = e.ep===3 ? "Finale" : ("Episode " + e.ep);
     let conceptChips;
-    if(e.concept.both){ conceptChips = chipH(e.concept.deep) + chipH(e.concept.light); }
+    if(e.concept.both){ conceptChips = chipH(lead) + chipH(other); }   // coin order, as in the builder
     else { conceptChips = chipH(e.concept); }
     const cls = done ? "cv2-bcard done" : (unlocked ? "cv2-bcard" : "cv2-bcard locked");
     const state = done ? '<span class="cv2-bstate" style="color:var(--muted)">✓ Plated</span>'
@@ -5064,23 +5181,114 @@ function renderCompV2Board(){
     return `<div class="${cls}"${onclick}>
       <span class="cv2-bno">${noLabel}</span>
       <span class="cv2-brole">${roleLabel}</span>
+      ${e.challenge && e.challenge.title ? `<span class="cv2-bctitle">${esc(e.challenge.title)}</span>` : ""}
+      ${e.challenge && e.challenge.line ? `<span class="cv2-bcline">${esc(e.challenge.line)}</span>` : ""}
       <div class="cv2-bconcept">${conceptChips}</div>
       <div class="cv2-bbrief">${esc(e.brief||"")}</div>
       ${state}
     </div>`;
   }).join("");
+  renderCv2Scores();
 }
 function cv2ConfirmExit(){
   if(confirm("Start a new Competition? Your current season will be cleared.")){
     clearSave(); S=null; goCompetition();
   }
 }
-// Episode cook screen — built in the next step. Stub keeps the board safe to click.
-function openCompV2Episode(i){
-  if(typeof renderCompV2Episode === "function"){ CV2_EP = i; renderCompV2Episode(); show("cv2ep"); }
-  else { alert("Episode "+(i+1)+" — cook screen coming in the next build step."); }
+/* ---- Episode play: a dice-built Competition runs on the original game engine ----
+   brief → cook (clock) → Tasting Notes + star scores → scorecard → running totals → recap.
+   The engine reads a season through S.custom / S.deck / S.results, so cv2Adapt() gives a
+   dice-built season that shape. There is no card table: each episode's concept was
+   decided by the dice, so it is locked in the way a unit test's concept is. */
+function cv2Lead(){ return S.lead==="light" ? S.pair.light : S.pair.deep; }
+function cv2Other(){ return S.lead==="light" ? S.pair.deep : S.pair.light; }
+function cv2EpConceptIds(i){
+  const e = S.episodes[i];
+  return e.concept.both ? [cv2Lead().id, cv2Other().id] : [e.concept.id];
 }
-let CV2_EP = 0;
+function cv2Adapt(s){
+  if(!s || !s.v2) return s;
+  s.product = "competition";
+  const role = e => e.role==="lead" ? "Opens the season" : e.role==="counter" ? "Answers back" : "Holds both";
+  if(!s.custom || !s.custom.v2){
+    s.custom = {
+      v2:true, product:"competition", name: s.name || "My Competition",
+      concepts: [s.pair.deep, s.pair.light],
+      challenges: s.episodes.map(e=>({
+        label: e.ep===3 ? "Finale" : ("Episode " + e.ep), finale: e.ep===3,
+        theme: (e.challenge && e.challenge.title) || s.name || "My Competition", mech: role(e),
+        tagline: (e.challenge && e.challenge.line) || "",
+        brief: e.brief || "", notes: e.notes || "", inspiration: e.inspiration || "", rules: []
+      })),
+      story: s.story || null
+    };
+  }
+  if(!s.deck) s.deck = [s.pair.deep, s.pair.light].map(c=>({id:c.id, status:"available", frozen:false, cookedIn:null}));
+  if(!s.results) s.results = {};
+  Object.values(s.results).forEach(r=>{ if(r && r.perPlayer) r.done = true; });
+  s.completedCount = [0,1,2].filter(i=>s.results[i] && s.results[i].done).length;
+  return s;
+}
+function cv2SetTable(i){
+  const ids = cv2EpConceptIds(i);
+  const roles = {}; ids.forEach(id=>roles[id]="cook");
+  table = { cards:ids.slice(), revealed:new Set(ids), roles, flips:0, locked:{ cook:ids.slice(), burn:[], freeze:[] } };
+  pickedCardId = null;
+}
+function openCompV2Episode(i){
+  if(!S || !S.v2) return;
+  cv2Adapt(S);
+  if(!cv2EpUnlocked(i)) return;
+  cv2SetTable(i);          // the engine's cook / tasting / edit screens all read the table
+  openChallenge(i);        // scored already → its scorecard; otherwise → the brief
+}
+function startCv2Cook(){
+  cv2SetTable(chIdx);
+  phase = "cook";
+  setupTimerDefaults();
+  renderChallenge();
+  save();
+}
+function renderCv2Brief(){
+  const c = ch();
+  const cooks = cv2EpConceptIds(chIdx).map(id=>concept(id));
+  $("challenge-body").innerHTML = `
+    <div class="panel">
+      <span class="kicker">${esc(c.label)} · ${esc(c.mech)}</span>
+      <div class="brief-theme">${esc(c.theme)}</div>
+      ${storyRibbon()}
+      ${c.tagline ? `<p class="lede" style="font-style:italic">${esc(c.tagline)}</p>` : ""}
+      <p class="lede" style="font-weight:700">${esc(c.brief)}</p>
+      ${c.notes ? `<p class="lede">${esc(c.notes)}</p>` : ""}
+      <div style="margin-top:24px">
+        <div class="ut-concept">
+          <span class="ut-k">Your concept${cooks.length>1?"s":""} for this episode</span>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            ${cooks.map(k=>`<div class="ut-card" style="background:${k.color};color:${k.fg}">
+              ${doodle(k.id, k.fg, 30, k.color)}
+              <span class="ut-name">${esc(k.name)}</span>
+            </div>`).join("")}
+          </div>
+        </div>
+        <button class="btn primary" onclick="startCv2Cook()">Start the cook <span class="arr">→</span></button>
+      </div>
+    </div>`;
+}
+/* Season scores under the three episode cards — the same bar the old board carried. */
+function renderCv2Scores(){
+  const host = $("cv2b-scores"); if(!host) return;
+  const played = Object.values(S.results||{}).filter(r=>r && r.perPlayer);
+  if(!played.length){ host.innerHTML = ""; return; }
+  const totals = S.players.map((p,pi)=> played.reduce((t,r)=> t + ((r.perPlayer[pi] && r.perPlayer[pi].total) || 0), 0));
+  const complete = [0,1,2].every(i=>S.results[i] && S.results[i].done);
+  host.innerHTML = `<div class="scorebar"><h3>Season scores</h3>` +
+    S.players.map((p,i)=>`<div class="scorerow"><span class="pname">${esc(p.name)}</span><span class="pts">${totals[i]} pts</span></div>`).join("") +
+    `<div style="margin-top:14px;text-align:center"><button class="btn ghost small" onclick="viewScorecard()">View running scorecard <span class="arr">→</span></button></div>` +
+    `<div style="margin-top:8px;text-align:center"><button class="btn ghost small" onclick="goJournal()">📔 Process journal</button></div>` +
+    `<div style="margin-top:8px;text-align:center"><button class="btn ghost small" onclick="exportBackup()">⤓ Download a backup</button></div>` +
+    (complete ? `<div style="margin-top:10px;text-align:center"><button class="btn green" onclick="renderRecap();show('recap')">See the season recap <span class="arr">→</span></button></div>` : "") +
+    `</div>`;
+}
 
 function goCompSetup(){
   $("comp-concepts").innerHTML = CONCEPTS.map((c,i)=>`
@@ -5173,6 +5381,7 @@ function compContinue(){
   const storyLine = ($("comp-story-line") ? $("comp-story-line").value : "").trim();
   PENDING_CUSTOM = {name, concepts, challenges, rule:COMP_RULE, briefMode:BRIEF_MODE,
     story: storyTitle ? { title: storyTitle, line: storyLine } : null};
+  PENDING_COMPV2 = null;
   SETUP_MODE = "multi";
   goSetup();
 }
@@ -5291,6 +5500,8 @@ function setMasthead(mode){
 }
 setMasthead("csk");
 function show(name){
+  closeVideoBox();                                   // a popped-out video never outlives its screen
+  if(name==="board" && S && S.v2){ renderCompV2Board(); name = "cv2board"; }   // dice-built seasons have their own board
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   $("screen-"+name).classList.add("active");
   if(name==="home"){ updateHomeResume(); if(typeof setRoute==="function") setRoute(""); }
@@ -5315,7 +5526,7 @@ function show(name){
   // "is it custom?". A Competition (custom or legacy) stays cobalt; a Classroom season
   // — debut OR the Classroom DIY build — brands mustard (csc).
   else if(name==="setup"){
-    const stagedComp = PENDING_CUSTOM && (PENDING_CUSTOM.product||"competition")==="competition";
+    const stagedComp = !!PENDING_COMPV2 || (PENDING_CUSTOM && (PENDING_CUSTOM.product||"competition")==="competition");
     mode = (stagedComp || (S && S.custom && isComp())) ? "comp" : "csc";
   }
   else if(["board","challenge","recap"].includes(name)) mode = (S && S.custom && isComp()) ? "comp" : "csc";
@@ -5332,7 +5543,9 @@ function show(name){
     nav.style.display = "flex";
     // Highlight the pill for the active product, even on shared gameplay screens.
     let navActive = name;
-    if(["setup","board","challenge","recap"].includes(name)) navActive = (mode==="comp") ? "competition" : "title";
+    if(["setup","board","challenge","recap"].includes(name)) navActive = (mode==="comp") ? "competition" : "classroom";
+    if(name==="kitchenbuild") navActive = "classroom";
+    if(name==="blog") navActive = "kitchen";
     if(name==="classroom") navActive = "classroom";
     if(name==="kitchen" || name==="about") navActive = "kitchen";
     if(name==="complanding" || name==="competition") navActive = "competition";
@@ -5375,9 +5588,19 @@ function renderTitle(){
   if($("resume-btn")) $("resume-btn").style.display = saved ? "" : "none";
 }
 
+/* Open the board for the active season. A dice-built Competition (S.v2) has its own
+   three-episode board and no deck, so it must never be sent through renderBoard(). */
+function openSeasonBoard(){
+  if(!S) return false;
+  if(S.v2){ renderCompV2Board(); show("cv2board"); setRoute("competition/season"); return true; }
+  if(!S.deck || !S.players) return false;   // not a playable save
+  renderBoard(); show("board"); return true;
+}
 function resumeSeason(){
   const saved = load();
-  if(saved){ S = saved; renderBoard(); show("board"); }
+  if(!saved) return;
+  S = saved;
+  if(!openSeasonBoard()){ S = null; show("home"); }
 }
 
 /* =================== SETUP =================== */
@@ -5403,6 +5626,19 @@ function goSetup(){
   show("setup");
 }
 
+// Back from "Set the table": return to the builder that staged this season (its
+// fields are still filled in), and drop the staged season so it can't leak elsewhere.
+function setupBack(){
+  if(PENDING_COMPV2){ PENDING_COMPV2 = null; show("compv2"); setRoute("competition/build"); return; }
+  if(PENDING_CUSTOM){
+    const cls = (PENDING_CUSTOM.product||"competition")==="classroom";
+    PENDING_CUSTOM = null;
+    show(cls ? "kitchenbuild" : "competition");
+    return;
+  }
+  goClassroom();
+}
+
 function renderPlayerInputs(){
   if(SETUP_MODE==="solo" && setupPlayers.length>1) setupPlayers = [setupPlayers[0]||""];
   $("player-list").innerHTML = setupPlayers.map((p,i)=>`
@@ -5416,7 +5652,7 @@ function renderPlayerInputs(){
   if(add) add.style.display = SETUP_MODE==="multi" ? "" : "none";
   if(hint) hint.textContent = SETUP_MODE==="multi"
     ? "Competition is multiplayer, so everyone cooks the same pull and then scores side by side, up to six cooks in all."
-    : "Kitchen seasons are solo, one chef against the house. If you want a crowd, that's what the Competition is for.";
+    : "Classroom seasons are solo, one chef against the house. If you want a crowd, that's what the Competition is for.";
 }
 function addPlayer(){
   if(SETUP_MODE!=="multi" || setupPlayers.length>=6) return;
@@ -5438,10 +5674,12 @@ function startSeason(){
     S.seasonId = Date.now().toString(36) + Math.random().toString(36).slice(2,6);
     S.players = names.map(n=>({name:n}));
     S.timed = $("timed-toggle") ? $("timed-toggle").checked : false;
+    cv2Adapt(S);
     PENDING_COMPV2 = null; PENDING_CUSTOM = null;
     save();
     renderCompV2Board();
     show("cv2board");
+    setRoute("competition/season");
     return;
   }
   S = freshSeason(names, $("timed-toggle").checked, PENDING_CUSTOM);
@@ -5462,8 +5700,10 @@ function confirmReset(){
 function challengeUnlocked(i){ if(S.testRun != null) return i === S.testRun; return i <= S.completedCount; }
 
 function renderBoard(){
+  if(S && S.v2){ renderCompV2Board(); return; }
   const boardEl = $("screen-board");
-  if(boardEl && boardEl.classList) boardEl.classList.toggle("comp-board", !!(S && S.custom));
+  if(boardEl && boardEl.classList) boardEl.classList.toggle("comp-board", !!(S && S.custom && isComp()));
+  if($("board-crumb")) $("board-crumb").textContent = S.custom ? (S.custom.name || (isComp() ? "Competition" : "Classroom season")) : "Debut Season";
   $("burner-row").innerHTML = CHALS().map((ch,i)=>{
     const done = !!S.results[i];
     const next = !done && challengeUnlocked(i);
@@ -5487,7 +5727,7 @@ function renderBoard(){
   const baseTitle = S.completedCount>=CHALS().length
     ? `Season complete: <span class="serif-accent">take a bow</span>`
     : (S.completedCount===CHALS().length-1 ? `It all comes down to <span class="serif-accent">the finale</span>` : `Choose your <span class="serif-accent">challenge</span>`);
-  $("board-title").innerHTML = (S.custom ? `<span class="comp-flag">${isComp() ? "Competition" : "Kitchen"} · ${esc(S.custom.name)}</span>` : "") + baseTitle + storyRibbon();
+  $("board-title").innerHTML = (S.custom ? `<span class="comp-flag${isComp() ? "" : " cls-flag"}">${isComp() ? "Competition" : "Classroom"} · ${esc(S.custom.name)}</span>` : "") + baseTitle + storyRibbon();
 
   $("mini-deck").innerHTML = S.deck.map(c=>{
     const meta = concept(c.id);
@@ -5502,7 +5742,7 @@ function renderBoard(){
     else if(c.frozen){ cls="frozen"; st="Frozen"; titleSt="Frozen ❄"; stamp = `<span class="flake" aria-hidden="true">❄</span>`; }
     return `<div class="mini-card ${cls}" style="background:${meta.color};color:${meta.fg}" title="${esc(meta.name)} · ${titleSt}">
       ${doodle(c.id, meta.fg, 34, meta.color)}
-      <div class="nm">${esc(meta.name)}</div>
+      <div class="${nmClass(meta.name)}">${esc(meta.name)}</div>
       ${st ? `<div class="st">${st}</div>` : ""}
       ${stamp}
     </div>`;
@@ -5515,9 +5755,13 @@ function renderBoard(){
       Object.values(S.results).forEach(r=>{ const pp = r.perPlayer[pi]; if(pp) t += pp.total; });
       return t;
     });
-    $("scorebar").innerHTML = `<h3>Season scores</h3>` +
+    // Scores belong to Competition only. A Classroom season keeps the bar for its
+    // own buttons (recap, journal, backup) — it just never shows points.
+    const scored = isComp();
+    $("scorebar").classList.toggle("no-scores", !scored);
+    $("scorebar").innerHTML = (scored ? `<h3>Season scores</h3>` +
       S.players.map((p,i)=>`<div class="scorerow"><span class="pname">${esc(p.name)}</span><span class="pts">${totals[i]} pts</span></div>`).join("") +
-      `<div style="margin-top:14px;text-align:center"><button class="btn ghost small" onclick="viewScorecard()">View running scorecard <span class="arr">→</span></button></div>` +
+      `<div style="margin-top:14px;text-align:center"><button class="btn ghost small" onclick="viewScorecard()">View running scorecard <span class="arr">→</span></button></div>` : "") +
       `<div style="margin-top:8px;text-align:center"><button class="btn ghost small" onclick="goJournal()">📔 Process journal</button></div>` +
       `<div style="margin-top:8px;text-align:center"><button class="btn ghost small" onclick="exportBackup()">⤓ Download a backup</button></div>` +
       (S.completedCount>=CHALS().length ? `<div style="margin-top:10px;text-align:center"><button class="btn green" onclick="renderRecap();show('recap')">See the season recap <span class="arr">→</span></button></div>` : "");
@@ -5557,7 +5801,7 @@ function chThemeShown(){ return ch().theme; }
 
 function renderChallenge(){
   const chEl = $("screen-challenge");
-  if(chEl && chEl.classList) chEl.classList.toggle("comp-board", !!(S && S.custom));
+  if(chEl && chEl.classList) chEl.classList.toggle("comp-board", !!(S && S.custom && isComp()));
   $("ch-crumb").textContent = (S.testRun != null ? "Unit Test Run" : (S.custom ? S.custom.name : "Debut Season")) + " · " + ch().label;
   const back = $("ch-back-btn");
   if(back) back.textContent = S.testRun != null ? "✕ End test run" : "← Season board";
@@ -5653,6 +5897,7 @@ function revealBrief(){
 }
 
 function renderBrief(){
+  if(S.v2){ renderCv2Brief(); return; }   // dice-built Competition: no card table
   const c = ch();
   // À la carte seasons: the brief for this round hasn't been written yet, so the
   // round opens at the writing desk instead of the printed brief.
@@ -5930,7 +6175,7 @@ function cardHTML(id){
     <div class="ccard-inner">
       <div class="cface cback">
         <span class="pattern"></span>
-        <span class="monogram">CSK</span>
+        <span class="monogram">CS</span>
       </div>
       <div class="cface cfront" style="background:${meta.color};color:${meta.fg}">
         <span class="${nmClass(meta.name)}">${esc(meta.name)}</span>
@@ -6413,6 +6658,7 @@ function submitEval(){
       };
     })
   };
+  if(S.v2) S.results[chIdx].done = true;   // unlocks the next episode on the board
   S.completedCount = Math.max(S.completedCount, chIdx+1);
   save();
   journalArchiveScorecard();
@@ -6484,7 +6730,7 @@ function renderReview(){
         </div>
         <div class="rc-stamp">
           <span class="rc-stamp-show">Cooking Show</span>
-          <span class="rc-stamp-line">${isTest ? "Kitchen · Unit Test" : (S.custom ? (isComp() ? "Competition" : "Kitchen") : "Kitchen")}</span>
+          <span class="rc-stamp-line">${isTest ? "Classroom · Unit Test" : (isComp() ? "Competition" : "Classroom")}</span>
           <span class="rc-stamp-date">${today}</span>
         </div>
       </div>
@@ -6500,7 +6746,7 @@ function renderReview(){
       ? `<div class="no-print" style="margin-top:20px"><button class="btn primary" onclick="endTestRun(true)">Done <span class="arr">→</span></button></div>`
       : (chIdx===CHALS().length-1
           ? `<div class="no-print" style="margin-top:20px"><button class="btn green" onclick="renderRecap();show('recap')">See the season recap <span class="arr">→</span></button></div>`
-          : `<div class="no-print" style="margin-top:20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button class="btn primary" onclick="openChallenge(${chIdx+1})">Next challenge <span class="arr">→</span></button><button class="btn ghost small" onclick="renderBoard();show('board')">Season board</button></div>`)}`;
+          : `<div class="no-print" style="margin-top:20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button class="btn primary" onclick="${S.v2 ? `openCompV2Episode(${chIdx+1})` : `openChallenge(${chIdx+1})`}">Next ${S.v2 ? "episode" : "challenge"} <span class="arr">→</span></button><button class="btn ghost small" onclick="renderBoard();show('board')">Season board</button></div>`)}`;
   hydrateMedia();
 }
 
@@ -6650,6 +6896,7 @@ function cumulativeScorecard(){
 
 // Return to Tasting Notes with the saved scores/notes repopulated for editing.
 function backToScoring(){
+  if(S.v2) cv2SetTable(chIdx);   // dice-built season: rebuild the episode's locked concepts
   const r = S.results[chIdx];
   phase = "taste";
   renderChallenge();
@@ -6922,8 +7169,9 @@ function journalScorecardCards(){
   const perMax = CRITERIA.length*5;
   return entries.map(e=>{
     const players = e.players || [];
-    const cls = e.source === "competition" ? "jr-competition" : "jr-kitchen";
-    const srcLabel = e.source === "competition" ? "Competition" : "Kitchen";
+    const isCompEntry = e.source === "competition";
+    const cls = isCompEntry ? "jr-competition" : "jr-kitchen";
+    const srcLabel = isCompEntry ? "Competition" : "Classroom";   // legacy "kitchen" entries were Classroom play
     const dishTitle = (players.length===1 && players[0].dish && players[0].dish.trim())
       ? players[0].dish : (e.theme || e.chLabel || "Scorecard");
     const concepts = (e.concepts||[]).map(id=>{ const k=concept(id); return k ? `<span class="concept-pill" style="background:${k.color};color:${k.fg}">${esc(k.name)}</span>` : ""; }).join(" ");
@@ -6949,21 +7197,24 @@ function journalScorecardCards(){
         <table class="jr-table">
           <tr><th>Concept${(e.concepts||[]).length>1?"s":""} cooked</th><td>${concepts || `<span class="jr-empty">—</span>`}${e.vsClassroom ? ` <span class="vs-chip">📺 ${esc(e.vsClassroom)}</span>` : ""}</td></tr>
         </table>
-        <table class="jr-scoretable">
+        ${isCompEntry ? `<table class="jr-scoretable">
           <thead><tr><th>Cook</th>${CRITERIA.map(cr=>`<th>${cr.name}</th>`).join("")}<th>Total</th></tr></thead>
           <tbody>${scoreRows}</tbody>
-        </table>
+        </table>` : (players.length>1 || (players[0] && players[0].dish && players[0].dish !== dishTitle)
+          ? `<table class="jr-table">${players.map(pl=>`<tr><th>${esc(pl.name)}</th><td>${pl.dish ? esc(pl.dish) : `<span class="jr-empty">—</span>`}</td></tr>`).join("")}</table>` : "")}
         ${notesTables}
       </div>
     </div>`;
-  });
+  }).map((html,i)=>({html, comp: entries[i].source === "competition"}));
 }
 
 function renderJournal(){
   const today = new Date().toLocaleDateString(undefined,{year:"numeric",month:"long",day:"numeric"});
   const refls = journalReflectionCards();
-  const scs = journalScorecardCards();
-  const empty = !refls.length && !scs.length;
+  const cooks = journalScorecardCards();
+  const seasonCooks = cooks.filter(c=>!c.comp).map(c=>c.html);   // Classroom season + unit-test cooks: no scores
+  const scs = cooks.filter(c=>c.comp).map(c=>c.html);            // Competition scorecards
+  const empty = !refls.length && !cooks.length;
   $("journal-body").innerHTML = `
     <div class="panel">
       <span class="kicker">Evidence of learning</span>
@@ -6989,8 +7240,13 @@ function renderJournal(){
           <p class="jr-section-sub">${refls.length} reflection${refls.length>1?"s":""} from practice.</p>
           ${refls.join("")}
         </div>` : ""}
+        ${seasonCooks.length ? `<div class="jr-section">
+          <h3 class="jr-section-h">[Ms. Maz: heading for Classroom season cooks &mdash; e.g. Classroom season cooks]</h3>
+          <p class="jr-section-sub">${seasonCooks.length} cook${seasonCooks.length>1?"s":""} from performance.</p>
+          ${seasonCooks.join("")}
+        </div>` : ""}
         ${scs.length ? `<div class="jr-section">
-          <h3 class="jr-section-h">Kitchen & Competition <span class="serif-accent">scorecards</span></h3>
+          <h3 class="jr-section-h">Competition <span class="serif-accent">scorecards</span></h3>
           <p class="jr-section-sub">${scs.length} scorecard${scs.length>1?"s":""} from performance.</p>
           ${scs.join("")}
         </div>` : ""}
@@ -7034,7 +7290,7 @@ function renderRecap(){
   $("recap-body").innerHTML = `
     <div class="podium">
       <span class="kicker">Season complete</span>
-      ${storyRibbon(" — one season, one thread, told in six plates.")}
+      ${storyRibbon(` — one season, one thread, told in ${({3:"three",6:"six"})[CHALS().length] || CHALS().length} plates.`)}
       <div class="champ">${solo
         ? esc(champs[0]) + ` survived <span class="serif-accent">the season.</span>`
         : esc(champs.join(" & ")) + (champs.length>1
@@ -7045,11 +7301,11 @@ function renderRecap(){
         : "Same cards, very different plates. That's the whole point."}</p>
     </div>
 
-    <div class="panel" style="margin-top:24px">
+    ${isComp() ? `<div class="panel" style="margin-top:24px">
       <h2 class="title">Final <span class="serif-accent">scores</span></h2>
       ${totals.sort((a,b)=>b.total-a.total).map((t,i)=>`
         <div class="scorerow"><span class="pname">${String(i+1).padStart(2,"0")} · ${esc(t.name)}</span><span class="pts">${t.total} pts</span></div>`).join("")}
-    </div>
+    </div>` : ""}
 
     <div class="panel" style="margin-top:24px">
       <h2 class="title">The season,<br>dish by <span class="serif-accent">dish</span></h2>
@@ -7064,7 +7320,7 @@ function renderRecap(){
             <td>${r.concepts.map(id=>{const k=concept(id);return `<span class="concept-pill" style="background:${k.color};color:${k.fg}">${esc(k.name)}</span>`;}).join(" ")}${r.vsClassroom?`<div style="margin-top:5px"><span class="vs-chip">📺 ${esc(r.vsClassroom)}</span></div>`:""}</td>
             <td>${S.players.map((p,pi)=>{
               const pp=r.perPlayer[pi];
-              return `<div style="margin-bottom:4px"><strong>${esc(p.name)}:</strong> ${esc(pp&&pp.dish?pp.dish:"·")} <span class="cpts">(${pp?pp.total:0})</span></div>`;
+              return `<div style="margin-bottom:4px"><strong>${esc(p.name)}:</strong> ${esc(pp&&pp.dish?pp.dish:"·")}${isComp() ? ` <span class="cpts">(${pp?pp.total:0})</span>` : ""}</div>`;
             }).join("")}</td>
           </tr>`;
         }).join("")}
@@ -7087,7 +7343,81 @@ function renderRecap(){
 }
 
 /* =================== INIT =================== */
-function goCommunity(){ renderCommunity(); show("community"); setRoute("community"); }
+function goCommunity(){ renderCommunity(); kgInit(); show("community"); setRoute("community"); }
+
+/* ---- Community's game: roll the inspiration die, then pick one concept card, then share.
+   Chance first here: the die is rolled, then the player picks the card that answers it.
+   Once a card is picked the roll is set; Start over clears both. No scores: it ends in sharing. */
+let KG = { insp:null, card:null, pick:null, order:[], shown:false };
+function kgInit(){
+  const order = CONCEPTS.map(c=>c.id); shuffle(order);   // face-down, so a fresh shuffle every deal
+  KG = { insp:null, card:null, pick:null, order, shown:false };
+  const cube=$("kg-cube"); if(!cube) return;
+  cube.classList.add("cv2-empty-cube"); cube.querySelectorAll(".cface").forEach(f=>{ f.innerHTML=""; f.style.background=""; });
+  cube.style.transition="none"; cube.style.transform=cv2FaceTransform(0); void cube.offsetWidth; cube.style.transition="";
+  const deck=$("kg-deck");
+  // the Classroom table's face-down card; its face is only written in when it is picked
+  if(deck) deck.innerHTML = order.map((id,i)=>`<button type="button" class="ccard locked" data-i="${i}" aria-label="Face-down concept card" onclick="kgPick(${i})">
+      <div class="ccard-inner">
+        <div class="cface cback"><span class="pattern"></span><span class="monogram">CS</span></div>
+        <div class="cface cfront"></div>
+      </div></button>`).join("");
+  kgRender();
+}
+function kgRender(){
+  const t = KG.insp ? cv2Type(KG.insp) : null;
+  if($("kg-ro")) $("kg-ro").textContent = t ? t.label : "—";
+  if($("kg-def")) $("kg-def").textContent = KG.insp ? cv2InspDefFull(KG.insp) : "";
+  const deck=$("kg-deck");
+  if(deck){
+    const wait = !KG.insp, picked = KG.pick!=null;
+    deck.classList.toggle("is-waiting", wait);
+    if(wait) deck.setAttribute("inert",""); else deck.removeAttribute("inert");
+    deck.classList.toggle("has-pick", picked);
+    deck.querySelectorAll(".ccard").forEach(b=>{
+      b.classList.toggle("locked", wait || picked);
+      b.classList.toggle("flipped", +b.dataset.i===KG.pick); });
+  }
+  if($("kg-stage")) $("kg-stage").classList.toggle("kg-locked", KG.pick!=null);
+  const br=$("kg-brief");
+  if(br){
+    const ready = KG.insp && KG.card && KG.shown;
+    br.style.display = ready ? "" : "none";
+    if(ready && $("kg-line")) $("kg-line").textContent = kgBrief();
+  }
+}
+// The same sentence the inspiration dice wrote: one die face, one concept card.
+function kgBrief(){ return cv2EpisodeBrief(KG.insp, KG.card, null, null); }
+function kgRoll(){
+  if(KG.pick!=null || CV2_ROLLING) return;    // the roll is set once a card is picked
+  const cube=$("kg-cube"); if(!cube) return;
+  const r=cv2RollChallenge(), f=CV2_INSPIRE_FACE_IDS.indexOf(r);
+  cube.classList.remove("cv2-empty-cube"); cv2PaintInspireCube(cube);
+  cv2RollCubes([{cube, stage:cube.closest(".cv2-cube-stage"), face:f>=0?f:0}], ()=>{ KG.insp=r; kgRender(); });
+}
+// One blind pick: the card turns over and stays; Start over deals again.
+function kgPick(i){
+  if(!KG.insp || KG.pick!=null || CV2_ROLLING) return;
+  const id=KG.order[i], meta=concept(id), btn=document.querySelector(`#kg-deck .ccard[data-i="${i}"]`);
+  if(!meta || !btn) return;
+  const fr=btn.querySelector(".cfront");
+  fr.style.background=meta.color; fr.style.color=meta.fg;
+  fr.innerHTML=`<span class="${nmClass(meta.name)}">${esc(meta.name)}</span><span class="art">${doodle(id, meta.fg, 34, meta.color)}</span>`;
+  btn.setAttribute("aria-label", meta.name);
+  KG.card=id; KG.pick=i; kgRender();                                          // turns it over
+  setTimeout(()=>{ if(KG.pick===i){ KG.shown=true; kgRender(); } }, 560);     // the brief lands with the card
+}
+function kgReset(){ kgInit(); }
+// Straight to sharing: the brief, the concept and the room carry into the share form.
+function kgShare(){
+  if(!KG.insp || !KG.card) return;
+  if($("ck-brief")) $("ck-brief").value = kgBrief();
+  document.querySelectorAll("#ck-concepts .ck-concept").forEach(b=>b.classList.toggle("on", b.dataset.cid===KG.card));
+  if($("ck-room")) $("ck-room").value = "community";
+  const sh=document.querySelector("#screen-community .cook-share");
+  if(sh && sh.scrollIntoView) sh.scrollIntoView({behavior:"smooth", block:"start"});
+  const d=$("ck-dish"); if(d) setTimeout(()=>{ try{ d.focus({preventScroll:true}); }catch(e){ d.focus(); } }, 400);
+}
 
 /* ---------- KITCHEN: the organization's own voice · the cook's home ---------- */
 function goKitchen(){ renderKitchen(); show("kitchen"); setRoute("kitchen"); window.scrollTo && window.scrollTo(0,0); }
@@ -7100,18 +7430,13 @@ const KITCHEN_DISHES = [   // keyed to the debut-season challenge index; slugs a
 ];
 const KITCHEN_CLIP_LABEL = {"":"Episode", "outtake":"Outtake", "inspiration":"Inspiration trip"};
 // A light video: a thumbnail until tapped, then the player (keeps a page of clips fast)
-function liteVideo(id, title, cls){
-  return `<button type="button" class="lite-yt ${cls||""}" style="background-image:url(https://i.ytimg.com/vi/${id}/hqdefault.jpg)" aria-label="Play: ${esc(title)}" onclick="playLite(this,'${id}')"><span class="lite-play">▶</span><span class="lite-cap">${esc(title.split(" — ").pop())}</span></button>`;
-}
-function playLite(btn, id){
-  const wrap=document.createElement("div"); wrap.className="vid-embed "+btn.className.replace("lite-yt","").trim();
-  wrap.innerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1" title="${esc(btn.getAttribute("aria-label")||"")}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
-  btn.replaceWith(wrap);
+function liteVideo(id, title, cls, short){
+  return `<button type="button" class="lite-yt ${cls||""}" style="background-image:url(https://i.ytimg.com/vi/${id}/hqdefault.jpg)" aria-label="Play: ${esc(title)}" data-title="${esc(title)}" onclick="openVideoBox('${id}',${short?1:0},this)"><span class="lite-play">▶</span><span class="lite-cap">${esc(title.split(" — ").pop())}</span></button>`;
 }
 function kitchenClip(i, kind, size){
   const key = "kitchen-"+i+(kind?"-"+kind:""), id = videoFor(key), c = CHALLENGES[i];
   const label = KITCHEN_CLIP_LABEL[kind||""];
-  if(id) return liteVideo(id, c.theme + " — " + label, "kc-"+size);
+  if(id) return liteVideo(id, c.theme + " — " + label, "kc-"+size, isShort(key));
   return `<div class="kc-ph kc-${size}"><span>${label}</span><span class="kc-soon">in production</span></div>`;
 }
 function kitchenPlay(i){ return cscUnitHas(i,"any") ? `goClassroomUnit(${i})` : `goClassroom()`; }
@@ -7229,7 +7554,7 @@ function renderBlog(){
       <div class="blog-feed">${feed}</div>
     </div>`;
 }
-function goBlog(){ renderBlog(); show("blog"); }
+function goBlog(){ renderBlog(); show("blog"); setRoute("blog"); }
 
 /* ---------- ABOUT / EDUCATOR: origin story + work-with-me ---------- */
 function renderAbout(){
@@ -7324,61 +7649,6 @@ const CSM_EXAMPLES = [
     story:"Drew Surprise and leaned all the way in. Half the table hated it, half asked for the recipe. That's a win in my book." }
 ];
 function productClass(p){ return p==="Kitchen"?"k":p==="Classroom"?"c":p==="Competition"?"o":"m"; }
-/* ---- Community: share your cook (Checkpoint 5) — captures a cook; the full
-   unified cook object + polished one-sheet come in Checkpoint 6 ---- */
-let cookForm = { franchise:"", mode:"", concepts:[] };
-function pickCookField(field, val, btn){
-  cookForm[field] = val;
-  btn.parentElement.querySelectorAll(".cf-pill").forEach(p=>p.classList.remove("sel"));
-  btn.classList.add("sel");
-}
-function toggleCookConcept(id, btn){
-  const i = cookForm.concepts.indexOf(id);
-  if(i>=0){ cookForm.concepts.splice(i,1); btn.classList.remove("sel"); }
-  else { cookForm.concepts.push(id); btn.classList.add("sel"); }
-}
-function conceptChipRow(){
-  return CONCEPTS.map(c=>`<button type="button" class="cf-concept" style="--cc:${c.color};--cf:${c.fg}" onclick="toggleCookConcept('${c.id}', this)">${esc(c.name)}</button>`).join("");
-}
-function previewCook(){
-  const dish = ($("ck-dish").value||"").trim() || "Your dish";
-  const brief = ($("ck-brief").value||"").trim();
-  const story = ($("ck-story").value||"").trim();
-  const cons = cookForm.concepts.map(id=>concept(id)).filter(Boolean);
-  const conChips = cons.length
-    ? cons.map(c=>`<span class="ck-con" style="background:${c.color};color:${c.fg}">${esc(c.name)}</span>`).join("")
-    : `<span class="ck-con-none">no concepts picked yet</span>`;
-  const frLabel = cookForm.franchise==="classroom" ? `<span class="pn pn-classroom">CS Classroom</span>`
-    : cookForm.franchise==="competition" ? `<span class="pn pn-competition">CS Competition</span>`
-    : cookForm.franchise==="free" ? `Free-form` : "";
-  const meta = [frLabel, cookForm.mode].filter(Boolean).join(" &middot; ");
-  $("cook-preview").innerHTML = `
-    <div class="ck-card" id="ck-card">
-      <span class="ck-kicker">A Cooking Show cook${meta?` &middot; ${meta}`:""}</span>
-      <h3 class="ck-dish">${esc(dish)}</h3>
-      ${brief?`<p class="ck-brief"><b>The brief:</b> ${esc(brief)}</p>`:""}
-      <div class="ck-cons">${conChips}</div>
-      ${story?`<p class="ck-story">${esc(story)}</p>`:`<p class="ck-story ck-story-empty">[Your story goes here — the why behind the dish.]</p>`}
-      <div class="ck-foot">Cooking Show Kitchen &middot; share your cook</div>
-    </div>
-    <div class="ck-actions no-print">
-      <button class="btn primary" style="background:var(--red);border-color:var(--red)" onclick="printCook()">Print your one-sheet <span class="arr">&rarr;</span></button>
-      <button class="btn ghost" onclick="document.getElementById('ck-upload-note').textContent='[Ms. Maz: wire the upload-to-be-featured channel here — no backend yet.]'">Upload your video to be featured</button>
-    </div>
-    <span id="ck-upload-note" class="hint" style="display:block;margin-top:6px"></span>
-    <p class="hint" style="margin-top:2px">[Ms. Maz: submission channel — where featured cooks are collected. Full one-sheet PDF arrives with the cook builder.]</p>`;
-  $("cook-preview").scrollIntoView({behavior:"smooth", block:"nearest"});
-}
-function printCook(){
-  const card = document.getElementById("ck-card");
-  if(!card) return;
-  let holder = document.getElementById("cook-print-holder");
-  if(!holder){ holder = document.createElement("div"); holder.id="cook-print-holder"; document.body.appendChild(holder); }
-  holder.innerHTML = ""; holder.appendChild(card.cloneNode(true));
-  document.body.classList.add("printing-cook");
-  window.print();
-  setTimeout(()=>document.body.classList.remove("printing-cook"), 300);
-}
 
 function renderCommunity(){
   const tags = [["#CookingShowKitchen","k"],["#CookingShowClassroom","c"],["#CookingShowCompetition","o"],["#CookingShowCommunity","m"]];
@@ -7402,6 +7672,32 @@ function renderCommunity(){
           <span class="csm-n">3</span>
           <h3>Post and tag it</h3>
           <p>Help the community find it. Use the hashtags below to serve your plate at the biggest table we\u2019ve got.</p>
+        </div>
+      </div>
+      <!-- ROLL & PICK: one roll of the inspiration die, then one concept card, then share -->
+      <div class="kg" id="kg">
+        <span class="kicker">[Ms. Maz: kicker for the new game]</span>
+        <h3 class="cook-share-h">Potluck of the Draw</h3>
+        <p class="lede" style="font-size:14px">[Ms. Maz: one-line intro &mdash; roll the inspiration die, pick a concept card, cook, then share it below.]</p>
+        <div class="kg-play">
+          <div class="kg-slot">
+            <span class="cv2-order kg-order">1 · Roll the die</span>
+            <div class="cv2-cube-stage cv2-tap" id="kg-stage" role="button" tabindex="0" aria-label="Roll the inspiration die" onclick="kgRoll()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><div class="cv2-cube-hop"><div class="cv2-cube cv2-cube-inspire cv2-empty-cube" id="kg-cube"><div class="cv2-core"></div><div class="cv2-core cy"></div><div class="cv2-core cx"></div><div class="cface cface-front"></div><div class="cface cface-back"></div><div class="cface cface-right"></div><div class="cface cface-left"></div><div class="cface cface-top"></div><div class="cface cface-bottom"></div></div></div></div>
+            <span class="cv2-readout" id="kg-ro">—</span>
+            <p class="kg-def" id="kg-def"></p>
+          </div>
+          <div class="kg-slot">
+            <span class="cv2-order kg-order">2 · Pick a card</span>
+            <div class="kg-deck is-waiting" id="kg-deck" inert></div>
+          </div>
+        </div>
+        <div class="kg-brief" id="kg-brief" style="display:none">
+          <span class="kg-k">Your brief</span>
+          <p class="kg-line" id="kg-line"></p>
+          <div class="kg-actions">
+            <button class="btn primary kg-go" onclick="kgShare()">Share your cook <span class="arr">→</span></button>
+            <button type="button" class="cv2-tool" onclick="kgReset()">Start over</button>
+          </div>
         </div>
       </div>
       <div class="cook-share">
@@ -7521,11 +7817,12 @@ function updateHomeResume(){
   const saved = load();
   if(!saved){ slot.innerHTML = ""; return; }
   const played = Object.values(saved.results||{}).filter(Boolean).length;
-  const isComp = !!saved.custom;
+  const isComp = !!saved.v2 || seasonProduct(saved)==="competition";   // by product, not "is it custom?"
+  const total = saved.v2 ? (saved.episodes||[]).length : (saved.custom&&saved.custom.challenges?saved.custom.challenges.length:6);
   slot.innerHTML = `
     <div class="resume-banner">
       <span class="rb-txt">Welcome back — you have ${isComp?"a Competition":"a season"} in progress.
-        <span class="rb-sub">${played} of ${ (saved.custom&&saved.custom.challenges?saved.custom.challenges.length:6) } challenges scored so far.</span>
+        <span class="rb-sub">${played} of ${total} ${saved.v2 ? "episodes plated" : (isComp ? "challenges scored" : "challenges cooked")} so far.</span>
       </span>
       <button class="btn primary" onclick="resumeSeason()">Resume ${isComp?"the Competition":"your season"} <span class="arr">→</span></button>
     </div>`;
@@ -7638,7 +7935,7 @@ function renderHome(){
      cookingshowkitchen.com/#unit-1/test       that unit's test
      cookingshowkitchen.com/#kitchen/smart-cookie  a dish's story in the Kitchen (slugs in KITCHEN_DISHES;
                                                    older #kitchen/challenge-2 links still work)
-     #classroom  #competition  #competition/build  #community  #kitchen  #journal  #about
+     #classroom  #competition  #competition/build  #competition/season  #blog  #community  #kitchen  #journal  #about
    The address updates as you move around (so Back works and pages can be shared).
    A link to a unit or lesson that's still in production falls back to the
    nearest page that exists; anything unrecognized opens the home page. */
@@ -7679,6 +7976,12 @@ function routeFromHash(){
     else if(m==="classroom") goClassroom();
     else if(m==="competition") goCompetition();
     else if(m==="competition/build") goCompV2();
+    else if(m==="competition/season"){
+      // a Competition in progress reopens on its board; with none saved, the landing
+      const sv = load();
+      if(sv && sv.v2){ S = sv; openSeasonBoard(); } else goCompetition();
+    }
+    else if(m==="blog") goBlog();
     else if(m==="community") goCommunity();
     else if(m==="kitchen") goKitchen();
     else if((r = /^kitchen\/(?:challenge-(\d+)|(finale))$/.exec(m))){
